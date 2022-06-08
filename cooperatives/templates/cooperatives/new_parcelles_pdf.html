@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FPM|PARCELLES {{cooperative}}</title>
+    <style>
+        table.GeneratedTable {
+            background-image: url('https://fpmpro.pythonanywhere.com/static/img/Logo.jpg');
+            width: 100%;
+            background-color: #ffffff;
+            border-collapse: collapse;
+            border-width: 2px;
+            border-color: #ffcc00;
+            border-style: solid;
+            color: #000000;
+            font-size: 13px;
+        }
+
+        table.GeneratedTable td, table.GeneratedTable th {
+            border-width: 2px;
+            border-color: black;
+            border-style: solid;
+            padding: 3px;
+        }
+
+        table.GeneratedTable thead {
+            background-color: #525252;
+            color: white;
+        }
+        table.table2{
+            width: auto;
+            background-color: #ffffff;
+            border-collapse: collapse;
+            border-width: 2px;
+            border-color: #ffcc00;
+            border-style: solid;
+            color: white;
+            font-size: 13px;
+        }
+        table.table2 td{
+            border-width: 2px;
+            border-color: black;
+            border-style: solid;
+            padding: 5px;
+            font-weight: bold;
+        }
+        table.table2 tr td:nth-child(1){
+            background-color: #757474;
+            color: white;
+        }
+        table.table2 tr td:nth-child(2), table.table1 tr td:nth-child(2){
+            text-align: center;
+        }
+        table.table1{
+            width: 100%;
+            background-color: #ffffff;
+            border-collapse: collapse;
+            border-width: 2px;
+            border-color: #ffcc00;
+            border-style: solid;
+            color: #000000;
+            font-size: 13px;
+        }
+        table.table1 td{
+            border-width: 2px;
+            border-color: black;
+            border-style: solid;
+            padding: 3px;
+            font-weight: bold;
+        }
+        .text-danger{
+            color: #f13030;
+        }
+        #footer {
+            position: relative;
+            margin-top: 700px;
+        }
+        .float-right{
+            float: right;
+            margin-right: 0 !important;
+        }
+        .fw-b{
+            font-weight: bold;
+            right: 0;
+        }
+        .tb-type-coti thead tr {
+            background-color: grey;
+            border: 1px solid black;
+            color: white;
+            text-align: left;
+        }
+        .tb-type-coti tr td{
+            border-width: 2px;
+            border-color: #030303;
+        }
+        .tfoot td{
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<table class="info-asso" width="100%">
+    <thead>
+    <tr>
+        <td width="30%">
+            <!--Fait le : <b style="margin-top -20px">{% now  ''%}</b>-->
+            <img src="/home/fpmpro/forest/static/img/Logo.jpg" alt="logo" height="50" width="50"><br>
+             <br>
+
+        </td>
+        <td width="40%" style="text-align: center">
+            <span style="font-weight: bold; text-transform: capitalize; font-size:16px">
+
+            </span>
+        </td>
+        <td width="30%" style="text-align: right">
+            {% if cooperative.logo %}
+              <!--<img src="https:\\fpmpro.pythonanywhere.com/media\{{cooperative.logo}}" alt="" height="40">-->
+              <img src="/home/fpmpro/forest/static/medias/{{cooperative.logo}}" alt="{{cooperative.sigle}}" height="40">
+
+            {% else %}
+
+               <b style="margin-top 10px">
+                   Fait le: {% now  ''%}<br>
+                   Cordonnée: {{cooperative.contacts}}
+               </b>
+               <br>
+            {% endif %}
+
+
+
+            <br>
+
+
+        </td>
+    </tr>
+    </thead>
+</table>
+<hr style="">
+<h3 style="text-align: center; text-decoration: underline"><strong><span>  LISTE DES PARCELLES - {{ cooperative }}</span></strong></h3>
+
+<table class="table table-striped" border="0.3" style="text-align: center; height:20px; padding-top: 2px; padding-bottom: -5px; background: url('static/img/Logo.jpg') 50% 0 no-repeat fixed;">
+    <thead style="margin-top: 15px">
+        <tr style="margin-top: 15px;">
+            <th style="width: 4% ;">ID</th>
+            <th style="width: 10%">CODE</th>
+            <th style="width: 25%; margin-top: 15px">PRODUCTEUR</th>
+            <th style="margin-top: 17px">SECTION</th>
+            <th style="width: 13%; margin-top: 15px">LOCALITE</th>
+            <th style="width: 8%">SUP(Ha)</th>
+             <th style="width: 9%">LAT</th>
+            <th style="width: 9%">LON</th>
+            <th style="width: 8%">CULTURE</th>
+        </tr>
+    </thead>
+    <tbody style="background-image: url('https://fpmpro.pythonanywhere.com/static/img/Logo.jpg')" >
+        {% for parcelle in parcelles %}
+            <tr style="background-image: url(https://fpmpro.pythonanywhere.com/media/img/Logo.jpg)">
+                <td>{{ forloop.counter }}</td>
+                <td><b>{{ parcelle.code|upper }}</b></td>
+                <td>{{ parcelle.producteur.nom|upper|truncatewords:4 }}</td>
+                <td style="text-align: center;">{{ parcelle.producteur.section|upper|truncatechars:12 }}</td>
+                <td style="text-align: center;">{{ parcelle.producteur.localite|upper|truncatechars:12 }}</td>
+                <td class="center">{{ parcelle.superficie }}</td>
+                <td class="center">{{ parcelle.latitude }}</td>
+                <td class="center">{{ parcelle.longitude }}</td>
+                <td>{{ parcelle.culture }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+
+<div id="footer" style="text-align: center; width: 100%">
+    <hr style="color: red">
+    <h5 style="font-style: italic; text-align: center;">
+        Siège social : {{ cooperative.siege }}      <br/>
+         PARCELLES {{ cooperative }} - Copyright(c) - AGRO-MAP
+    </h5>
+</div>
+
+</body>
+</html>
