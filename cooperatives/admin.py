@@ -36,11 +36,13 @@ class SectionResource(resources.ModelResource):
 class SectionAdmin(ImportExportModelAdmin):
     resource_class = SectionResource
     list_display = ["id", "libelle", "responsable", "cooperative"]
+    list_filter = ["cooperative__sigle", ]
     inlines = [SouSectionAdmin]
 
 class ProdResource(resources.ModelResource):
     class Meta:
         model = Producteur
+        import_id_fields = ('code',)
 
 class ProducteurAdmin(ImportExportModelAdmin):
     list_display = ["code", "nom", "section", "localite"]
@@ -51,11 +53,13 @@ class ProducteurAdmin(ImportExportModelAdmin):
 class ParcelleResource(resources.ModelResource):
     class Meta:
         model = Parcelle
+        import_id_fields = ('code',)
 
 class ParcelleAdmin(ImportExportModelAdmin):
     list_display = ["code", "producteur", "acquisition", "culture", "certification", "coordonnees"]
     list_filter = ["producteur__section__libelle", "producteur__cooperative",]
     search_fields = ["code", "producteur__nom", "latitude", "longitude", "superficie"]
+    resource_class = ParcelleResource
 
 class DetailPlantingAdmin(admin.TabularInline):
    model = DetailPlanting
