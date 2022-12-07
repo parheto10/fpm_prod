@@ -24,6 +24,8 @@ SECRET_KEY = 'django-insecure-qu*@1l6cv4khfln*7)rbqg+!2n*y1hxidig+bkg5+yx$ld*x6!
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+# DEBUG = False
+TEMPLATE_DEBUG = DEBUG
 
 ALLOWED_HOSTS = ['127.0.0.1', 'fpmpro.pythonanywhere.com', '*']
 
@@ -157,3 +159,10 @@ MEDIA_ROOT = (os.path.join(BASE_DIR, 'static', 'medias'))
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}

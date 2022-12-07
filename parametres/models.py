@@ -168,7 +168,7 @@ class Campagne(models.Model):
     class Meta:
         verbose_name_plural = "CAMPAGNES"
         verbose_name = "campagne"
-        ordering = ["-titre"]
+        ordering = ["titre"]
 
     def DEBUT(self):
         if self.mois_debut !="" and self.annee_debut !="":
@@ -185,8 +185,8 @@ class Campagne(models.Model):
             current_year  = datetime.datetime.now().year
             self.annee_fin = current_year + 1
 
-        if self.mois_debut !="" and self.mois_fin !="" and self.annee_debut !="" and self.annee_fin !="" :
-            self.titre = "%s,%s - %s,%s" %(self.mois_debut, self.annee_debut, self.mois_fin, self.annee_fin)
+        # if self.mois_debut !="" and self.mois_fin !="" and self.annee_debut !="" and self.annee_fin !="" :
+        self.titre = "%s - %s" %(self.annee_debut, self.annee_fin)
         super(Campagne, self).save(force_insert, force_update)
 
     def __str__(self):
@@ -264,7 +264,7 @@ class Role(models.Model):
 
 class Utilisateur(models.Model):
     account = models.OneToOneField(User, on_delete=models.CASCADE)
-    contact = models.IntegerField()
+    contact = models.CharField(max_length=255)
     role = models.ForeignKey(Role,on_delete=models.SET_NULL,null=True,blank=True)
 
     def __str__(self):
@@ -282,6 +282,8 @@ class Cooperative(models.Model):
     appartenance = models.CharField(max_length=50, choices=ENTITECOLLECTIVES, default="")
     logo = models.ImageField(verbose_name="logo", upload_to=upload_logo_site, blank=True)
     utilisateur = models.ManyToManyField(Utilisateur)
+    created_at = models.CharField(max_length=150,default=datetime.datetime.now().year)
+    updated_at = models.DateTimeField(auto_now=True)
     objects = models.Manager()
 
     def get_absolute_url(self):

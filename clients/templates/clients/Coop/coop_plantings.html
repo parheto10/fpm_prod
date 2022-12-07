@@ -54,8 +54,9 @@
                         {% include '_partials/messages_display.html' %}
                         <div class="panel panel-info">
                             <div class="panel-heading">
-                                <i class="fa fa-users fa-fw"></i> Suivis Parcelle
-                                <a href="#" class="btn btn-success">Exporter En Excel</a>
+                                <!--<i class="fa fa-users fa-fw"></i> PLANTINGS {{ cooperative.sigle }}-->
+                                <!--<a href="{% url 'clients:export_planting_xls' cooperative.id %}" class="btn btn-success">Exporter En Excel</a>-->
+                                <a href="{% url 'clients:export_planting_xls' cooperative.id %}" class="btn btn-success"><i class="fa fa-file-excel-o fa-fw fa-2x"></i> EXCEL</a>
 {#                                <button type="button" class="btn btn-primary pull-right" style="font-size:1.8vmin; margin-top: -5px" data-toggle="modal" data-target="#ParcelleModal" data-whatever="@mdo">#}
 {#                                    Ajouter un Suivi Parcelle#}
 {#                                </button>#}

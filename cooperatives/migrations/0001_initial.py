@@ -87,7 +87,7 @@ class Migration(migrations.Migration):
             name='Parcelle',
             fields=[
                 ('code', models.CharField(blank=True, help_text='LE CODE PARCELLE EST GENERE AUTOMATIQUEMENT', max_length=150, primary_key=True, serialize=False, unique=True, verbose_name='CODE PARCELLE')),
-                ('code_certificat', models.CharField(blank=True, max_length=150, null=True, unique=b'I01\n', verbose_name='CODE certification')),
+                ('code_certificat', models.CharField(blank=True, max_length=150, null=True, verbose_name='CODE certification')),
                 ('annee_certificat', models.IntegerField(blank=True, choices=[(2010, 2010), (2011, 2011), (2012, 2012), (2013, 2013), (2014, 2014), (2015, 2015), (2016, 2016), (2017, 2017), (2018, 2018), (2019, 2019), (2020, 2020), (2021, 2021), (2022, 2022)], null=True, verbose_name='Année certification')),
                 ('annee_acquis', models.IntegerField(blank=True, choices=[(2010, 2010), (2011, 2011), (2012, 2012), (2013, 2013), (2014, 2014), (2015, 2015), (2016, 2016), (2017, 2017), (2018, 2018), (2019, 2019), (2020, 2020), (2021, 2021), (2022, 2022)], null=True, verbose_name='Année acquisition')),
                 ('acquisition', models.CharField(choices=[('HERITAGE', 'HERITAGE'), ('ACHAT', 'ACHAT'), ('AUTRES', 'AUTRES')], default='heritage', max_length=50, verbose_name='MODE ACQUISITION')),

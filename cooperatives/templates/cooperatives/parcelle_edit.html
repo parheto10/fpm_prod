@@ -55,6 +55,12 @@
                                                     {% render_field form.acquisition class="form-control" placeholder="Latitude" %}
                                                 </div>
                                             </div>
+                                             <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label>Type parcelle</label>
+                                                    {% render_field form.type_parcelle class="form-control" placeholder="Latitude" %}
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
@@ -101,12 +107,12 @@
         </div>
 
 
-    
+
 
         <script>
             //var date = document.getElementById("id_date");
             //var pattern =/^([0-9]{2})\/([0-9]{2})\/([0-9]{4})$/;
-        
+
             //date.addEventListener("keyup", function (event) {
             //    if(pattern.test(date) == false) {
             //        date.setCustomValidity("Desolé format de date incorrect !");
@@ -116,16 +122,16 @@
             //});
             $('#form_parcelle').on('submit', function (e) {
                 e.preventDefault()
-              
+
                 var form = this;
-        
+
                 $.ajax({
                     url:$(form).attr('action'),
                     method:$(form).attr('method'),
                     data:$(form).serialize(),
                     dataType:'json',
                     success: function(data){
-                        
+
                         if(data.status == 200){
                             swal({
                                 title: data.msg,
@@ -138,13 +144,13 @@
                             });
                         }else{
                             $.each(data.errors, function(prefix, val){
-                            
+
                             $(form).find('span.'+prefix+'_error').text(val[0]);
                         });
                         }
                     }
-        
-              
+
+
                 });
             })
         </script>

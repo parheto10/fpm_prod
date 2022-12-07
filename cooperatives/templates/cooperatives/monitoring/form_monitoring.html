@@ -11,7 +11,7 @@
                 </button>
             </div>
             <div class="panel-body">
-                
+
                     <div class="col-sm-4 ">
                         <div class="form-group">
                             <label>Date Monitoring</label>
@@ -25,7 +25,7 @@
                             <input type="text"  class="form-control"  >
                         </div>
                     </div>-->
-    
+
                     <div class="col-sm-7">
                         <div class="form-group">
                             <label>Observations</label>
@@ -35,54 +35,54 @@
                             <input type="hidden" class="form-control" name="remplacer" value="0">
                         </div>
                     </div>
-              
-                
+
+
                 <table id="emptbl" class="table table-bordered border-primar">
-    
-                    
+
+
                 <thead class="table-dark">
                     <tr>
                         <th>Espèce</th>
                         <th>Plants reçus</th>
-                        <th>Plants à remplacer(mort)</th>
+                        <th>Plants vivants</th>
                        <!-- <th> Plants vivant</th> -->
                     </tr>
                 </thead>
                 <tbody>
-                    
+
                     {% for Planting in remplmonitoringViews %}
-                    
+
                      {% if Planting.nb_plante == 0 %}
-                        
+
                         {% else %}
-                            <tr> 
-                                <td id="col2">                     
-                                    <select class="form-control" name="espece" id="dept" >                        
-                                        <option value="{{Planting.espece.id}}">{{Planting.espece}}</option>                         
-                                    </select> 
-                                
-                                </td> 
-                                <td id="col0"><input type="number" id="recus" value="{{Planting.nb_plante}}" name="recus" class="form-control" readonly></td> 
+                            <tr>
+                                <td id="col2">
+                                    <select class="form-control" name="espece" id="dept" >
+                                        <option value="{{Planting.espece.id}}">{{Planting.espece}}</option>
+                                    </select>
+
+                                </td>
+                                <td id="col0"><input type="number" id="recus" value="{{Planting.nb_plante}}" name="recus" class="form-control" readonly></td>
                                 <input type="hidden" class="form-control" name="d_planting" value="{{Planting.code}}">
-                                <td id="col0"><input type="number" id="mort" class="form-control" name="mort"  value="0" placeholder="Entrer nombre plant vivant" required></td> 
+                                <td id="col0"><input type="number" id="mort" class="form-control" name="mort"  value="0" placeholder="Entrer nombre plant vivant" required></td>
                         <!--  <td id="col1"><input type="number" id="mature" class="form-control" name="mature" value="0" placeholder="Entrer nombre de plant mort" required></td> -->
-                        
-                        
+
+
                             </tr>
-                            
+
                         {% endif %}
-                       
-                   
+
+
                     {% endfor %}
-                </tbody>  
-            </table> 
+                </tbody>
+            </table>
             <table>
                 <br>
-                <tr> 
+                <tr>
                    <!-- <td><button type="button" class="btn btn-sm btn-info" onclick="addRows()">Add</button></td>
                     <td><button type="button" class="btn btn-sm btn-danger" onclick="deleteRows()">Remore</button></td>-->
-                    <td><button onclick="SaveAndRest('{% url 'cooperatives:monitoringSave' %}')" class="btn btn-sm btn-success form-control">Enregistrer</button></td> 
-                </tr>  
+                    <td><button onclick="SaveAndRest('{% url 'cooperatives:monitoringSave' %}')" class="btn btn-sm btn-success form-control">Enregistrer</button></td>
+                </tr>
             </table>
         </div>
         </div>

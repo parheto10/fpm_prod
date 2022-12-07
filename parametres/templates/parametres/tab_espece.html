@@ -18,18 +18,18 @@
 
                   <tbody>
                     {% for detail in especes %}
-                                <tr class="odd gradeX">
-                                    <td class="text-center">{{ detail.espece.libelle }} - <b><i>{{ detail.espece.accronyme }}</i></b> </td>
-                                    <td class="text-center">{{ detail.nb_plante }}</td>
-                                    <td class="text-center">{{ detail.planting.date }}</td>
-                                </tr>
-                            {% endfor %}
-                            {% if especes %}
-                                <tr class="odd gradeX">
-                                    <td class="text-center text-danger" style="font-weight: bold">TOTAL PLANTS</td>
-                                    <td class="text-center text-danger" style="font-weight: bold">{{ t_planting }}</td>
-                                </tr>
-                            {% endif %}
+                        <tr class="odd gradeX">
+                            <td class="text-center">{{ detail.espece.libelle }} - <b><i>{{ detail.espece.accronyme }}</i></b> </td>
+                            <td class="text-center">{{ detail.nb_plante }}</td>
+                            <td class="text-center">{{ detail.planting.date | date:'d/m/Y' }}</td>
+                        </tr>
+                    {% endfor %}
+                    {% if especes %}
+                        <tr class="odd gradeX">
+                            <td class="text-center text-danger" style="font-weight: bold">TOTAL PLANTS</td>
+                            <td class="text-center text-danger" style="font-weight: bold">{{ t_planting }}</td>
+                        </tr>
+                    {% endif %}
 
                   </tbody>
               </table>

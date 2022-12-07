@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from email.policy import default
 import os
 from pickle import TRUE
 import time
@@ -101,13 +102,22 @@ CAMPAGNEPROD = (
     ('GRANDE', 'GRANDE CAMPAGNE'),
 )
 
+TYPE_PARCELLE = (
+    ("AGROFORESTERIE", "AGROFORESTERIE"),
+    ("COMMUNAUTAIRE", "COMMUNAUTAIRE"),
+    ("FORET_CLASSEE", "FORET CLASSEE"),
+    ("INDIVIDUELLE", "INDIVIDUELLE"),
+    ("JACHERE", "JACHERE"),
+    ("PRIVEE", "PRIVEE"),
+)
+
 
 class Section(models.Model):
     cooperative = models.ForeignKey(Cooperative, on_delete=models.CASCADE, related_name="sections")
     libelle = models.CharField(max_length=250)
     responsable = models.CharField(max_length=250, blank=True, null=True)
     contacts = models.CharField(max_length=50, blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.CharField(max_length=150,default=datetime.datetime.now().year)
     updated_at = models.DateTimeField(auto_now=True)
     objects = models.Manager()
 
@@ -131,7 +141,7 @@ class Sous_Section(models.Model):
     libelle = models.CharField(max_length=250)
     responsable = models.CharField(max_length=250, blank=True, null=True)
     contacts = models.CharField(max_length=50, blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.CharField(max_length=150,default=datetime.datetime.now().year)
     updated_at = models.DateTimeField(auto_now=True)
     objects = models.Manager()
 
@@ -172,10 +182,10 @@ class Producteur(models.Model):
     num_document = models.CharField(max_length=150, verbose_name="N° PIECE", null=True, blank=True)
     document = models.FileField(verbose_name="Documents", upload_to=producteurs_documents, blank=True, null=True)
     is_active = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.CharField(max_length=150,default=datetime.datetime.now().year)
     updated_at = models.DateTimeField(auto_now=True)
     user_id = models.IntegerField(null=True,blank=True)
-    synchro = models.CharField(max_length=10, default='NON')
+    synchro = models.CharField(max_length=10, default='OUI')
     objects = models.Manager()
 
 
@@ -222,22 +232,23 @@ class Producteur(models.Model):
 
 
 class Parcelle(models.Model):
-    code = models.CharField(max_length=150, blank=True,unique=True,primary_key=True,null=False,editable=True,verbose_name='CODE PARCELLE', help_text="LE CODE PARCELLE EST GENERE AUTOMATIQUEMENT")
-    code_certificat = models.CharField(max_length=150, blank=True, null=True, verbose_name='CODE certification',unique=TRUE)
+    code = models.CharField(max_length=150,unique=True,primary_key=True,verbose_name='CODE PARCELLE', help_text="LE CODE PARCELLE EST GENERE AUTOMATIQUEMENT")
+    code_certificat = models.CharField(max_length=150, blank=True, null=True, verbose_name='CODE certification')
+    type_parcelle = models.CharField(max_length=50, choices=TYPE_PARCELLE, default="AGROFORESTERIE")
     annee_certificat = models.IntegerField(verbose_name='Année certification', choices=ANNEES,blank=True, null=True)
     annee_acquis = models.IntegerField(verbose_name='Année acquisition', choices=ANNEES,blank=True, null=True)
     producteur = models.ForeignKey(Producteur, related_name='parcelles', on_delete=models.CASCADE)
     acquisition = models.CharField(max_length=50, verbose_name="MODE ACQUISITION", choices=ACQUISITION, default="heritage")
     latitude = models.CharField(max_length=12, null=True, blank=True)
-    longitude = models.CharField(max_length=12)
+    longitude = models.CharField(max_length=12, null=True, blank=True)
     superficie = models.DecimalField(max_digits=5, decimal_places=3, null=True, blank=True)
     culture = models.CharField(max_length=50, verbose_name="CULTURE", choices=CULTURE, default="cacao")
     certification = models.CharField(max_length=50, verbose_name="CERTIFICATION", choices=CERTIFICATION, default="utz")
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.CharField(max_length=150,default=datetime.datetime.now().year)
     updated_at = models.DateTimeField(auto_now=True)
     projet = models.ForeignKey(Projet, on_delete=models.CASCADE, default=1)
     user_id = models.IntegerField(null=True,blank=True)
-    synchro = models.CharField(max_length=10, default='NON')
+    synchro = models.CharField(max_length=10, default='OUI')
     objects = models.Manager()
 
     def __str__(self):
@@ -264,6 +275,9 @@ class Planting(models.Model):
     campagne = models.ForeignKey(Campagne, on_delete=models.CASCADE, related_name="plantings")
     date = models.DateField()
     user_id = models.IntegerField(null=True,blank=True)
+    synchro = models.CharField(max_length=10, default='OUI')
+    created_at = models.CharField(max_length=150,default=datetime.datetime.now().year)
+    updated_at = models.DateTimeField(auto_now=True)
     objects = models.Manager()
 
     #def get_absolute_url(self):
@@ -288,6 +302,11 @@ class DetailPlanting(models.Model):
     planting = models.ForeignKey(Planting, on_delete=models.CASCADE)
     espece = models.ForeignKey(Espece, on_delete=models.CASCADE, default=1)
     nb_plante = models.PositiveIntegerField(default=0, verbose_name="QTE recu")
+    etat = models.IntegerField(null= True, blank = True, default = 0)
+    user_id = models.IntegerField(null=True,blank=True)
+    synchro = models.CharField(max_length=10, default='OUI')
+    created_at = models.CharField(max_length=150,default=datetime.datetime.now().year)
+    updated_at = models.DateTimeField(auto_now=True)
     objects = models.Manager()
 
     def get_absolute_url(self):
@@ -304,22 +323,25 @@ class Monitoring(models.Model):
     planting = models.ForeignKey(Planting, on_delete=models.CASCADE)
     mort_global = models.PositiveIntegerField(default=0, verbose_name="NBRE PLANTS MORTS",blank=True,null=True)
     mature_global = models.PositiveIntegerField(default=0, verbose_name="NBRE PLANTS VIVANTS",blank=True,null=True)
-    observation = models.ManyToManyField(ObsMonitoring,related_name="cooperatives_monitoring_observation",blank=True,null=True)
+    observation = models.ManyToManyField(ObsMonitoring,related_name="cooperatives_monitoring_observation",blank=True)
     date = models.DateField()
     taux_vitalite = models.DecimalField(max_digits=5,decimal_places=2,blank=True,null=True)
     taux_mortalite = models.DecimalField(max_digits=5,decimal_places=2,blank=True,null=True)
     user_id = models.IntegerField(null=True,blank=True)
+    synchro = models.CharField(max_length=10, default='OUI')
+    created_at = models.CharField(max_length=150,default=datetime.datetime.now().year)
+    updated_at = models.DateTimeField(auto_now=True)
     objects = models.Manager()
 
     class Meta:
         verbose_name_plural = "MONITORINGS PLANTINGS"
         verbose_name = "monitoring planting"
     
-    def save(self, force_insert=False, force_update=False):
+    def save(self, force_insert=False, force_update=False,using=None):
         if self.mature_global:
             self.taux_vitalite = ((self.mature_global*100)/(self.planting.plant_recus))
             self.taux_mortalite = 100 - self.taux_vitalite       
-        super(Monitoring, self).save(force_insert, force_update)
+        super(Monitoring, self).save(force_insert, force_update,using)
 
     def get_observation(self):
         ret = ''
@@ -333,6 +355,9 @@ class RemplacementMonitoring(models.Model):
     espece = models.ManyToManyField(Espece,through="MonitoringEspeceremplacement")
     monitoring = models.ForeignKey(Monitoring,on_delete=models.CASCADE)
     user_id = models.IntegerField(null=True,blank=True)
+    synchro = models.CharField(max_length=10, default='OUI')
+    created_at = models.CharField(max_length=150,default=datetime.datetime.now().year)
+    updated_at = models.DateTimeField(auto_now=True)
 
 
 class DetailPlantingRemplacement(models.Model):
@@ -341,6 +366,10 @@ class DetailPlantingRemplacement(models.Model):
     espece = models.ForeignKey(Espece, on_delete=models.CASCADE)
     nb_plante = models.PositiveIntegerField(default=0, verbose_name="QTE recu")
     remplacer = models.ForeignKey(RemplacementMonitoring, on_delete=models.SET_NULL,null=True)
+    created_at = models.CharField(max_length=150,default=datetime.datetime.now().year)
+    updated_at = models.DateTimeField(auto_now=True)
+    user_id = models.IntegerField(null=True,blank=True)
+    synchro = models.CharField(max_length=10, default='OUI')
     objects = models.Manager()
 
     class Meta:
@@ -352,6 +381,10 @@ class DetailMonitoring(models.Model):
    code = models.CharField(max_length=150, blank=True,unique=True,primary_key=True,null=False,editable=True,verbose_name='CODE ')
    monitoring = models.ForeignKey(Monitoring, on_delete=models.CASCADE)
    espece = models.ManyToManyField(Espece,through='MonitoringEspece')
+   created_at = models.CharField(max_length=150,default=datetime.datetime.now().year)
+   user_id = models.IntegerField(null=True,blank=True)
+   synchro = models.CharField(max_length=10, default='OUI')
+   updated_at = models.DateTimeField(auto_now=True)
 
    class Meta:
         verbose_name_plural = "DETAILS MONITORINGS "
@@ -365,7 +398,11 @@ class MonitoringEspece(models.Model):
     detailplanting = models.ForeignKey(DetailPlanting, on_delete=models.SET_NULL,null=True)
     mort = models.PositiveIntegerField(default=0, verbose_name="NBRE PLANTS MORTS")
     detailplantingremplacement = models.ForeignKey(DetailPlantingRemplacement, on_delete=models.SET_NULL,null=True)
+    user_id = models.IntegerField(null=True,blank=True)
+    synchro = models.CharField(max_length=10, default='OUI')
     taux_mortalite = models.DecimalField(max_digits=5,decimal_places=2,blank=True,null=True)
+    created_at = models.CharField(max_length=150,default=datetime.datetime.now().year)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, force_insert=False, force_update=False,using=None):
 
@@ -387,6 +424,8 @@ class Participantcoop(models.Model):
     cooperative = models.ForeignKey(Cooperative, on_delete=models.CASCADE)
     nom = models.CharField(max_length=255,unique=TRUE)
     contact  = models.CharField(max_length=255,blank=True,null=True)
+    created_at = models.CharField(max_length=150,default=datetime.datetime.now().year)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return '%s' %(self.nom)
@@ -413,6 +452,8 @@ class Formation(models.Model):
     critere = models.CharField(max_length=50,choices=SATISFACTION,blank=True,null=True,default="")
     debut = models.DateField(verbose_name="DATE DEBUT")
     fin = models.DateField(verbose_name="DATE FIN")
+    created_at = models.CharField(max_length=150,default=datetime.datetime.now().year)
+    updated_at = models.DateTimeField(auto_now=True)
     objects = models.Manager()
 
     def __str__(self):
@@ -429,6 +470,8 @@ class Participantformation(models.Model):
     nom = models.CharField(max_length=255)
     #localite = models.CharField(max_length=255)
     contact  = models.CharField(max_length=255,blank=True,null=True)
+    created_at = models.CharField(max_length=150,default=datetime.datetime.now().year)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return "%s - %s - %s"  %(self.nom,self.formation,self.participant)
@@ -446,6 +489,8 @@ class Participantformation(models.Model):
 class Detail_Formation(models.Model):
     formation = models.ForeignKey(Formation, on_delete=models.CASCADE)
     participant = models.ManyToManyField(Producteur)
+    created_at = models.CharField(max_length=150,default=datetime.datetime.now().year)
+    updated_at = models.DateTimeField(auto_now=True)
     objects = models.Manager()
 
     def Participants(self):
@@ -469,17 +514,23 @@ class MonitoringEspeceremplacement(models.Model):
     remplacer = models.PositiveBigIntegerField(default=0,verbose_name="NOMBRE PLANTS REMPLACER",blank=True,null=True)
     mort = models.PositiveBigIntegerField(default=0,verbose_name="NOMBRE PLANTS MORT",blank=True,null=True)
     futur = models.PositiveBigIntegerField(default=0,verbose_name="NOMBRE PLANTS PROCHAIN REMPLACEMENT",blank=True,null=True)
+    user_id = models.IntegerField(null=True,blank=True)
+    synchro = models.CharField(max_length=10, default='OUI')
+    created_at = models.CharField(max_length=150,default=datetime.datetime.now().year)
+    updated_at = models.DateTimeField(auto_now=True)
 
 
 
 
-
+ 
 class Production(models.Model):
     code = models.CharField(max_length=150, blank=True,unique=True,primary_key=True,null=False,editable=True,verbose_name='CODE ')
     parcelle = models.ForeignKey(Parcelle, on_delete=models.CASCADE)
     # campagne = models.ForeignKey(Campagne, on_delete=models.CASCADE)
     campagne = models.CharField(max_length=150, choices=CAMPAGNEPROD, default='PETITE')
     qteProduct = models.IntegerField(default=0)
+    created_at = models.CharField(max_length=150,default=datetime.datetime.now().year)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return '%s(%s) - %s' %(self.parcelle,self.qteProduct, self.campagne)
@@ -487,3 +538,24 @@ class Production(models.Model):
     class Meta:
         verbose_name_plural = "PRODUCTIONS/PARCELLES"
         verbose_name = "production/parcelle"
+        
+        
+
+##########28/06/2022#############MPI###########HISTORIQUE##########
+
+class SyncHistorique(models.Model):
+    date = models.DateField()
+    cooperative = models.ForeignKey(Cooperative, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    status = models.IntegerField(null=True,blank=True,default=0)
+    indice = models.CharField(max_length=150)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    
+class MonitoringObsMobile(models.Model):
+    monitoring = models.ForeignKey(Monitoring, on_delete= models.CASCADE)
+    observation = models.ForeignKey(ObsMonitoring, on_delete=models.CASCADE)
+    user_id = models.IntegerField(null=True,blank=True)
+    synchro = models.CharField(max_length=10, default='OUI')
+    created_at = models.DateTimeField(auto_now_add = True)
+    updated_at = models.DateTimeField(auto_now = True)

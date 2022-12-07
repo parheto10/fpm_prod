@@ -9,7 +9,7 @@
 {% block title %}
     Parcelles |
 {% endblock %}
-{% block content %} 
+{% block content %}
     <div id="wrapper">
         <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
         {% if user.is_authenticated %}
@@ -141,6 +141,16 @@
                                     <div class="col-sm-12" style="margin-top: 20px; margin-bottom: 30px">
                                         {{ parcelleForm.media }}
                                         <div class="row">
+                                               <div class="col-md-3">
+
+                                                <div class="form-group">
+                                                    <label>Type parcelle</label>
+                                                    {% render_field parcelleForm.type_parcelle class="form-control"  %}
+                                                    <span class="culture_error text-danger"></span>
+                                                </div>
+
+                                            </div>
+
                                             <div class="col-md-3">
 
                                                 <div class="form-group">
@@ -177,15 +187,7 @@
 
                                             </div>
 
-                                            <div class="col-md-3">
 
-                                                <div class="form-group">
-                                                    <label>SUPERFICIE</label>
-                                                    {% render_field parcelleForm.superficie class="form-control" placeholder="Superficie" %}
-                                                    <span class="superficie_error text-danger"></span>
-                                                </div>
-
-                                            </div>
                                         </div>
 
                                         <div class="row">
@@ -208,14 +210,23 @@
                                                 </div>
                                             </div>
 
-                                            <div class="col-md-4">
+                                            <div class="col-md-2">
 
                                                 <div class="form-group">
-                                                    <label>DATE CERTIFICATION</label>
+                                                    <label>DATE CERTIF.</label>
                                                     {% render_field parcelleForm.annee_certificat class="form-control" placeholder="Certification" %}
                                                     <span class="annee_certificat_error text-danger"></span>
                                                 </div>
-                                                
+
+                                            </div>
+                                            <div class="col-md-2">
+
+                                                <div class="form-group">
+                                                    <label>SUPERFICIE</label>
+                                                    {% render_field parcelleForm.superficie class="form-control" placeholder="Superficie" %}
+                                                    <span class="superficie_error text-danger"></span>
+                                                </div>
+
                                             </div>
 
                                         </div>
@@ -243,7 +254,7 @@
                                                     {% render_field parcelleForm.longitude class="form-control" placeholder="Longitude" %}
                                                     <span class="longitude_error text-danger"></span>
                                                 </div>
-                                                
+
                                             </div>
 
                                             <div class="col-md-3">
@@ -251,7 +262,7 @@
                                                     <label>LATITUDE</label>
                                                     {% render_field parcelleForm.latitude class="form-control " placeholder="Latitude"  %}
                                                     <span class="latitude_error text-danger "></span>
-                                                    
+
                                                 </div>
                                             </div>
 

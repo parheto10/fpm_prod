@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% load bootstrap4 %}
+{{ form.media.css }}
+{{ form.media.js }}
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% bootstrap_messages %}
+{% block title %}
+{{ instance.libelle }} |
+{% endblock %}
+{% block content %}
+    <div id="wrapper">
+            <!-- Navigation -->
+            {% include 'cooperatives/coop_nav.html' %}
+            <div id="page-wrapper">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <h3 class="page-header"> <a href="#"></a>  Historique de synchronisation</h3>
+                        </div>
+                        <!-- /.col-lg-12 -->
+                    </div>
+
+                    <!-- /.row -->
+                    <div class="row">
+
+                        <!-- <div class="col-md-4 " style="border-right: solid;">
+                            <h3>PARTICIPANT</h3>
+
+                        </div> -->
+
+                        <div class="col-md-8" style="margin-left: 180px;">
+
+
+                                <h3 style="margin: 0px;">Nombre d'éléments synchronisation par agents</h3>
+                                <hr style="margin: 0px 0px 8px 0px;">
+
+                                <div class="row">
+<!-- /.row -->
+                                    <div class="col-md-6 " >
+                                        <div class="form-group">
+
+                                            <span class="formateur_error text-danger"></span>
+                                        <!--  <input class="form-control" type="text" name="formation" placeholder="Nom et prénoms du formateur" required>-->
+                                          </div>
+
+                                    </div>
+                                    <!-- <div class="col-md-6 " >
+                                        <div class="form-group">
+                                           <select class="form-control" name="campagne" id="">
+                                            <option value="" selected>--Select Campagne--</option>
+                                            {% for use in syncUser %}
+                                                <option value="{{use.account.id}}" >{{use.account.last_name}} {{use.account.first_name}}</option>
+                                            {% endfor %}
+                                           </select>
+                                           <span class="campagne_error text-danger"></span>
+                                          </div>
+                                    </div>                         -->
+
+                                </div>
+
+
+                                <div id="historique">
+                        {% for histo in historiques %}
+                                    <!-- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- -->
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        <label for="">Date de synchronisation : </label>
+                                        <label for="">{{histo.date}} </label>
+                                      </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="">Agent :  {% if histo.user__last_name == "" and histo.user__first_name == "" %} {{histo.user__username}}{% else %} {{histo.user__last_name}} {{histo.user__first_name}}{% endif %}  </label>
+                                      </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8" >
+                                    <div class="form-group">
+                                        <label for="" class="debut_error text-danger">INFORMATIONS SYNCHRONISEES : {{histo.ind}}</label>
+
+                                      </div>
+                                </div>
+                                <div class="col-md-4" >
+                                    <div class="form-group">
+                                       <a href="#" onclick="ConsulteHistorique('{% url 'cooperatives:consult_histo' %}','{{histo.date|date:'Y-m-d'}}','{{histo.user__id}}')">Consulter</a>
+
+                                      </div>
+                                </div>
+
+                            </div>
+
+                            -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                            {% endfor %}
+                            </div>
+
+
+
+                                <!-- <hr style="margin: 0px 0px 8px 0px;"> -->
+
+
+                        </div>
+
+
+
+                    </div>
+                    <!-- /.row -->
+                </div>
+                <!-- /.container-fluid -->
+
+            </div>
+
+            <div class="modal" id="HistoModal" tabindex="-1" role="dialog">
+
+              </div>
+            <!-- /#page-wrapper -->
+        </div>
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+        <script src="{% static 'lib/jquery.formatter.min.js' %}"></script>
+
+
+        <script src="{% static 'js/function.js' %}"></script>
+
+        <script>
+            function ConsulteHistorique(url,date,id){
+                event.preventDefault();
+
+                $.ajax({
+                    url: url,
+                    method: "GET",
+                    data:{
+                      'id':id,
+                      'date':date
+                    },
+                    dataType : "json",
+                    success:function(response){
+                        console.log(response.templateStr)
+                        $('#HistoModal').html(response.templateStr)
+                        $('#HistoModal').modal('show')
+                    }
+
+                });
+
+            }
+        </script>
+{% endblock %}
+

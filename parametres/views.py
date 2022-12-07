@@ -85,13 +85,7 @@ def link_callback(uri, rel):
             return uri
 
 
-@api_view(['GET'])
-def api_planting(request):
-    plantings = Planting.objects.filter(parcelle__producteur__cooperative__utilisateur=request.user.utilisateur)
-    serializer = PlantingSerializer(plantings, many=True)
-    nb_plantings = plantings.count()
-    print(nb_plantings)
-    return Response(serializer.data)
+
 
 @api_view(['GET'])
 def map_parcelles(request):
@@ -196,23 +190,7 @@ def catre_parcelles(request):
     return render(request, 'carte.html', context)
 
 
-@api_view(['GET'])
-def coop_parcelles(request, id=None):
-    cooperative = get_object_or_404(Cooperative, id=id)
-    parcelle_coop = Planting.objects.filter(parcelle__producteur__cooperative_id=cooperative)
-    serializer = PlantingSerializer(parcelle_coop, many=True)
-    nb_parcelles = parcelle_coop.count()
-    return Response(serializer.data)
 
-
-@api_view(['GET'])
-def section_parcelles(request, id=None):
-    section = get_object_or_404(Section, id=id)
-    parcelle_coop = Planting.objects.filter(parcelle__producteur__section_id=section)
-    serializer = PlantingSerializer(parcelle_coop, many=True)
-    nb_parcelles = parcelle_coop.count()
-    print(nb_parcelles)
-    return Response(serializer.data)
 
 
 @api_view(['GET'])
@@ -616,7 +594,8 @@ def map_plantings_espece(request, code=None):
     p_count = queryset.count()
 
     if not queryset:
-        return JsonResponse({'msg': "Desolé! Cette parcelle ne contient pas d'espece .", "status": 400}, safe=False)
+        return JsonResponse({'msg': "Desolé! Aucun Planting effectué sur cette Parcelle !!!", "status": 400}, safe=False)
+        # return JsonResponse({'msg': "Desolé! Cette parcelle ne contient pas d'espece .", "status": 400}, safe=False)
     else:
         context = {
             't_planting': t_planting,
@@ -642,12 +621,7 @@ def searching_parcelle(request):
         return JsonResponse({'templateStr': templateStr, 'code': code}, safe=False)
 
 
-@api_view(['GET'])
-def recherche_parcelles(request, code=None, id=None):
-    id_parcelle = Parcelle.objects.filter(code=code)
-    parcelle1 = Planting.objects.filter(parcelle_id__in=id_parcelle)
-    serializer = PlantingSerializer(parcelle1, many=True)
-    return Response(serializer.data)
+
 
 
 def Plantings(request):
@@ -1193,3 +1167,64 @@ def export_formation_to_pdf(request, id=None):
     if pisa_status.err:
         return HttpResponse('Une Erreure est Survenue, Réessayer SVP...' + html + '</pre>')
     return response
+
+
+### SHOW PLANTING TAB IN CARTE
+
+@api_view(['GET'])
+def show_planting(request, code=None):
+    parcelle = Parcelle.objects.get(code = code)
+    plantings = Planting.objects.filter(parcelle_id = code)
+    if not plantings :
+        return JsonResponse({'msg': "Aucun planting effectué sur cette parcelle !", "status": 400}, safe=False)
+    else:
+        context = {
+            "plantings":plantings,
+            "parcelle":parcelle,
+        }
+
+        templateStr = render_to_string("parametres/planting/tab_planting.html", context)
+        return JsonResponse({'templateStr': templateStr, 'id': code}, safe=False)
+
+
+@api_view(['GET'])
+def recherche_parcelles(request, code=None, id=None):
+    parcelle = Parcelle.objects.filter(code=code).exclude(latitude="").exclude(longitude="")
+    serializer = ParcelleSerializer(parcelle, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def api_planting(request):
+    parcelles = Parcelle.objects.filter(producteur__cooperative__utilisateur=request.user.utilisateur).exclude(latitude="").exclude(longitude="")
+    serializer = ParcelleSerializer(parcelles, many=True)
+    nb = parcelles.count()
+    print(nb)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def coop_parcelles(request, id=None):
+    cooperative = get_object_or_404(Cooperative, id=id)
+    parcelle_coop = Parcelle.objects.filter(producteur__cooperative_id =cooperative).exclude(latitude="").exclude(longitude="")
+    serializer = ParcelleSerializer(parcelle_coop, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def section_parcelles(request, id=None):
+    section = get_object_or_404(Section, id=id)
+    parcelle_sect = Parcelle.objects.filter(producteur__section_id =section).exclude(latitude="").exclude(longitude="")
+    serializer = ParcelleSerializer(parcelle_sect, many= True)
+    return Response(serializer.data)
+
+
+
+
+
+
+
+
+
+
+
+

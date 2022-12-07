@@ -6,6 +6,7 @@ from django.conf.urls.static import static
 from .views import (
     RemplaceSave,
     changeSection,
+    consult_histo,
     contactProd,
     coop_dashboard,
     add_section,
@@ -38,6 +39,7 @@ from .views import (
     monitoring_form_view,
     monitoringCreate,
     monitoringSave,
+    obsMonitoringFunc,
     parcelle_update,
     parcelleSave,
     participant_delete,
@@ -78,6 +80,7 @@ from .views import (
     folium_map, PlantingList, detail_planting, coopdetailPlantings, CoopPlantings, getParcelleCoop, map_by_cooperative,
     updateMonitoring,
     updateProducteur,
+    view_historique,
     # delete_sous_section, export_sous_section_xls, export_formation_xls, my_parcelles, ParcellesView,
     # load_section
 )
@@ -93,7 +96,7 @@ urlpatterns = [
     path('parcelle/<str:code>/modifier', edit_parcelle, name='edit_parcelle'),
     path('parcelle/<str:code>/supprimer', parcelle_delete, name='parcelle_delete'),
     path('section/<int:id>/delete/supprimer', delete_section, name='delete_section'),
-  
+
     path('sous_section/<int:id>/supprimer', delete_sous_section, name='delete_sous_section'),
     path('dashboard/', coop_dashboard, name='dashboard'),
     path('sections/', add_section, name='section'),
@@ -205,6 +208,10 @@ urlpatterns = [
     path('apiCreatedetailMonitoring/',createDetailmonitoring,name='apicreate_detailmoni'),
     path('apiCreateMonitoringespece/',createEspecemonitoring,name='apicreate_moniespece'),
     path('apiUpdateMonitoringespece/',updateMonitoring,name='apiupdate_moniespece'),
+    path('apiObsMonitoring/',obsMonitoringFunc,name='api_obsmonitoring'),
 
-   ################################################################## 
+   ################################################################## 28/06/2022 #######################MPI#######HISTORIQUE
+    path('view_historique/',view_historique,name='view_historique'),
+    path('consult_histo/',consult_histo,name='consult_histo'),
+
 ]

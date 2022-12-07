@@ -46,8 +46,8 @@ class ProdResource(resources.ModelResource):
 
 class ProducteurAdmin(ImportExportModelAdmin):
     list_display = ["code", "nom", "section", "localite"]
-    list_filter = ["cooperative__sigle", "section__libelle", ]
-    search_fields = ["code", "nom", "contacts", "section__libelle", ]
+    list_filter = ["cooperative__sigle", "section__libelle",]
+    search_fields = ["code", "nom", "contacts", "cooperative__sigle", ]
     resource_class = ProdResource
 
 class ParcelleResource(resources.ModelResource):
@@ -57,7 +57,7 @@ class ParcelleResource(resources.ModelResource):
 
 class ParcelleAdmin(ImportExportModelAdmin):
     list_display = ["code", "producteur", "acquisition", "culture", "certification", "coordonnees"]
-    list_filter = ["producteur__section__libelle", "producteur__cooperative",]
+    list_filter = ["producteur__cooperative"]
     search_fields = ["code", "producteur__nom", "latitude", "longitude", "superficie"]
     resource_class = ParcelleResource
 
@@ -68,6 +68,12 @@ class DetailPlantingAdmin(admin.TabularInline):
 class DetailPlantingResource(resources.ModelResource):
     class Meta:
         model = DetailPlanting
+
+def delete_plant_existant(modeladmin, request, queryset):
+    for planting in queryset:
+        planting.nb_plant_exitant = planting.nb_plant_exitant * 0
+        planting.save()
+delete_plant_existant.short_description = 'Supprimer Plants Existant'
 
 # class DetailPlantingAdmin(ImportExportModelAdmin):
 #     resource_class = DetailPlantingResource
@@ -86,6 +92,7 @@ class PlantingAdmin(ImportExportModelAdmin):
    list_filter = ["parcelle__producteur__cooperative", ]
    readonly_fields = ["plant_total"]
    inlines = [DetailPlantingAdmin]
+   actions = [delete_plant_existant, ]
 
 # admin.site.register(Cooperative, CooperativeAdmin)
 admin.site.register(Section, SectionAdmin)

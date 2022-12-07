@@ -26,6 +26,7 @@
                                         <table class="table table-striped table-bordered table-hover" id="dataTables-example">
                                             <thead>
                                                 <tr>
+                                                    <th class="text-center">TYPE</th>
                                                     <th class="text-center">COOPERATIVE</th>
                                                     <th class="text-center">SECTION</th>
                                                     <th class="text-center">PRODUCTEUR</th>
@@ -42,6 +43,7 @@
                                             <tbody class="text-center">
                                                 {% for p in parcelles %}
                                                     <tr class="odd gradeX text-center">
+                                                        <td>{{ p.type_parcelle }}</td>
                                                         <td>{{ p.producteur.cooperative.sigle }}</td>
                                                         <td>{{ p.producteur.section.libelle }}</td>
                                                         <td>{{ p.producteur.nom }}</td>

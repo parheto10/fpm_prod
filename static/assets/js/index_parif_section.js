@@ -44,65 +44,59 @@ function viewMapSection(id ,url){
 
                     const plantings = L.featureGroup().addTo(map);
 
-                    data1.forEach(({ parcelle, plant_total, campagne, projet, date, code  }) => {
+                    data1.forEach(({ code,producteur,latitude, longitude, certification, culture, superficie  }) => {
 
                       plantings.addLayer(
-                        L.marker([parcelle.latitude, parcelle.longitude], { icon }).bindPopup(
+                        L.marker([latitude, longitude], { icon }).bindPopup(
                           `
-                            <table class="table table-striped table-bordered">
-                              <thead style="align-items: center">
-                                  <tr>
-                                    <th scope="col" class="center">ID</th>
-                                    <th scope="col" class="center">INFORMATIONS</th>
-                                  </tr>
-                              </thead>
-                              <tbody style="align-items: center">
-                                  <tr>
-                                      <th scope="col"><b>CODE PARCELLE :</b></th>
-                                      <td class="text-uppercase"><strong>${parcelle.code}</strong></td>
-                                  </tr>
-                                  <tr>
-                                      <th scope="col"><b>PRODUCTEUR :</b></th>
-                                      <td class="text-uppercase"><strong>${parcelle.producteur.code} - ${parcelle.producteur.nom}</strong></td>
-                                  </tr>
-                                  <tr>
-                                      <th scope="col"><b>LOCALITE :</b></th>
-                                      <td class="text-uppercase"><strong>${parcelle.producteur.localite}</strong></td>
-                                  </tr>
-                                  <tr>
-                                      <th scope="col"><b>COORDONNEES :</b></th>
-                                      <td class="text-uppercase">(${parcelle.latitude},${parcelle.longitude})</td>
-                                  </tr>
-                                  <tr>
-                                      <th scope="col"><b>CERTIFICATION : </b></th>
-                                      <td class="text-uppercase">${parcelle.certification}</td>
-                                  </tr>
-                                  <tr>
-                                      <th scope="col"><b>CULTURE :</b></th>
-                                      <td class="text-uppercase">${parcelle.culture}</td>
-                                  </tr>
-                                  <tr>
-                                      <th scope="col"><b>SUPERFICIE</b></th>
-                                      <td class="text-uppercase">${parcelle.superficie} (Ha)</td>
-                                  </tr>
+                          <table class="table table-striped table-bordered">
+                            <thead style="align-items: center">
+                                <tr>
+                                  <th scope="col" class="center">ID</th>
+                                  <th scope="col" class="center">INFORMATIONS</th>
+                                </tr>
+                            </thead>
+                            <tbody style="align-items: center">
+                                <tr>
+                                    <th scope="col"><b>CODE PARCELLE :</b></th>
+                                    <td class="text-uppercase"><strong>${code}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th scope="col"><b>PRODUCTEUR :</b></th>
+                                    <td class="text-uppercase"><strong>${producteur.code} - ${producteur.nom}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th scope="col"><b>LOCALITE :</b></th>
+                                    <td class="text-uppercase"><strong>${producteur.localite}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th scope="col"><b>COORDONNEES :</b></th>
+                                    <td class="text-uppercase">(${latitude},${longitude})</td>
+                                </tr>
+                                <tr>
+                                    <th scope="col"><b>CERTIFICATION : </b></th>
+                                    <td class="text-uppercase">${certification}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="col"><b>CULTURE :</b></th>
+                                    <td class="text-uppercase">${culture}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="col"><b>SUPERFICIE</b></th>
+                                    <td class="text-uppercase">${superficie} (Ha)</td>
+                                </tr>
 
-                                  <tr>
-                                      <th scope="col"><b>ESPECES PLANTEES</b></th>
-                                      <td class="text-uppercase text-center">
-                                          <a class="btn btn-success" href="#" onclick="show_espece('https://fpmpro.pythonanywhere.com/api/v1/map_plantings_espece/${code}')"   role="button"><i class="glyphicon glyphicon-tree-deciduous"></i></a>
-                                      </td>
-                                  </tr>
+                                <tr>
+                                    <th scope="col"><b>SUIVIS</b></th>
+                                    <td class="text-uppercase text-center">
+                                        <a class="btn btn-default " style="padding: 1px 8px 1px 8px;" href="#" title="voir" onclick="show_planting('https://fpmpro.pythonanywhere.com/show_planting/${code}')" ><i class="glyphicon glyphicon-eye-open"></i></a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                          </table>
 
-                                  <tr>
-                                      <th scope="col"><b>MONITORING</b></th>
-                                      <td class="text-uppercase text-center">
-                                          <a class="btn btn-default " style="padding: 1px 8px 1px 8px;" href="#" title="voir" onclick="show_monitoring('https://fpmpro.pythonanywhere.com/show_monitoring/${code}')" ><i class="glyphicon glyphicon-eye-open"></i></a>
-                                      </td>
-                                  </tr>
-                              </tbody>
-                            </table>
+                        `
 
-                          `
 
 
                         )
@@ -126,66 +120,58 @@ function viewMapSection(id ,url){
 
                     const plantings = L.featureGroup().addTo(map);
 
-                    data1.forEach(({ parcelle, plant_total, campagne, projet, date, code  }) => {
+                    data1.forEach(({ code,producteur,latitude, longitude, certification, culture, superficie }) => {
 
                       plantings.addLayer(
-                        L.marker([parcelle.latitude, parcelle.longitude], { icon }).bindPopup(
+                        L.marker([latitude, longitude], { icon }).bindPopup(
                           `
-                            <table class="table table-striped table-bordered">
-                              <thead style="align-items: center">
-                                  <tr>
-                                    <th scope="col" class="center">ID</th>
-                                    <th scope="col" class="center">INFORMATIONS</th>
-                                  </tr>
-                              </thead>
-                              <tbody style="align-items: center">
-                                  <tr>
-                                      <th scope="col"><b>CODE PARCELLE :</b></th>
-                                      <td class="text-uppercase"><strong>${parcelle.code}</strong></td>
-                                  </tr>
-                                  <tr>
-                                      <th scope="col"><b>PRODUCTEUR :</b></th>
-                                      <td class="text-uppercase"><strong>${parcelle.producteur.code} - ${parcelle.producteur.nom}</strong></td>
-                                  </tr>
-                                  <tr>
-                                      <th scope="col"><b>LOCALITE :</b></th>
-                                      <td class="text-uppercase"><strong>${parcelle.producteur.localite}</strong></td>
-                                  </tr>
-                                  <tr>
-                                      <th scope="col"><b>COORDONNEES :</b></th>
-                                      <td class="text-uppercase">(${parcelle.latitude},${parcelle.longitude})</td>
-                                  </tr>
-                                  <tr>
-                                      <th scope="col"><b>CERTIFICATION : </b></th>
-                                      <td class="text-uppercase">${parcelle.certification}</td>
-                                  </tr>
-                                  <tr>
-                                      <th scope="col"><b>CULTURE :</b></th>
-                                      <td class="text-uppercase">${parcelle.culture}</td>
-                                  </tr>
-                                  <tr>
-                                      <th scope="col"><b>SUPERFICIE</b></th>
-                                      <td class="text-uppercase">${parcelle.superficie} (Ha)</td>
-                                  </tr>
+                          <table class="table table-striped table-bordered">
+                            <thead style="align-items: center">
+                                <tr>
+                                  <th scope="col" class="center">ID</th>
+                                  <th scope="col" class="center">INFORMATIONS</th>
+                                </tr>
+                            </thead>
+                            <tbody style="align-items: center">
+                                <tr>
+                                    <th scope="col"><b>CODE PARCELLE :</b></th>
+                                    <td class="text-uppercase"><strong>${code}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th scope="col"><b>PRODUCTEUR :</b></th>
+                                    <td class="text-uppercase"><strong>${producteur.code} - ${producteur.nom}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th scope="col"><b>LOCALITE :</b></th>
+                                    <td class="text-uppercase"><strong>${producteur.localite}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th scope="col"><b>COORDONNEES :</b></th>
+                                    <td class="text-uppercase">(${latitude},${longitude})</td>
+                                </tr>
+                                <tr>
+                                    <th scope="col"><b>CERTIFICATION : </b></th>
+                                    <td class="text-uppercase">${certification}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="col"><b>CULTURE :</b></th>
+                                    <td class="text-uppercase">${culture}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="col"><b>SUPERFICIE</b></th>
+                                    <td class="text-uppercase">${superficie} (Ha)</td>
+                                </tr>
 
-                                  <tr>
-                                      <th scope="col"><b>ESPECES PLANTEES</b></th>
-                                      <td class="text-uppercase text-center">
-                                          <a class="btn btn-success" href="#" onclick="show_espece('https://fpmpro.pythonanywhere.com/api/v1/map_plantings_espece/${code}')"   role="button"><i class="glyphicon glyphicon-tree-deciduous"></i></a>
-                                      </td>
-                                  </tr>
+                                <tr>
+                                    <th scope="col"><b>SUIVIS</b></th>
+                                    <td class="text-uppercase text-center">
+                                        <a class="btn btn-default " style="padding: 1px 8px 1px 8px;" href="#" title="voir" onclick="show_planting('https://fpmpro.pythonanywhere.com/show_planting/${code}')" ><i class="glyphicon glyphicon-eye-open"></i></a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                          </table>
 
-                                  <tr>
-                                      <th scope="col"><b>MONITORING</b></th>
-                                      <td class="text-uppercase text-center">
-                                          <a class="btn btn-default " style="padding: 1px 8px 1px 8px;" href="#" title="voir" onclick="show_monitoring('https://fpmpro.pythonanywhere.com/show_monitoring/${code}')" ><i class="glyphicon glyphicon-eye-open"></i></a>
-                                      </td>
-                                  </tr>
-                              </tbody>
-                            </table>
-
-                          `
-
+                        `
 
                         )
                       );

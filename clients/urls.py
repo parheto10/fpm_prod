@@ -2,6 +2,9 @@ from django.urls import path
 
 from .views import (
     DetailPlantings,
+    DetailPlantingsbyYear,
+    DetailPlantingsbyNoyear,
+    camp_filterdashboad,
     client_index,
     coopdetailPlantings,
     detail_planting,
@@ -37,7 +40,7 @@ app_name = 'clients'
 urlpatterns = [
     # path('', connexion, name='connexion'),
     # path('logout', loggout, name='logout'),
-    path('index/', client_index, name='dashboard'), 
+    path('index/', client_index, name='dashboard'),
     path('projets/', projet, name='projets'),
     path('formation/<int:id>', formations, name='formations'),
     path('formation/<int:id>/<int:_id>', detail_formation, name='formation'),
@@ -50,6 +53,8 @@ urlpatterns = [
     path('localisation/', localisation, name='localisation'),
     path('Plantings/', Plantings, name='Plantings'),
     path('DetailPlantings/', DetailPlantings, name='DetailPlantings'),
+    path('DetailPlantingsbyYear/<str:code>', DetailPlantingsbyYear, name='DetailPlantingsbyYear'),
+    path('DetailPlantingsbyNoyear', DetailPlantingsbyNoyear, name='DetailPlantingsbyNoyear'),
     path('coopdetailPlantings/<int:id>', coopdetailPlantings, name='coopdetailPlantings'),
     path('plants_par_section/<int:id>', plants_par_section, name='plants_par_section'),
     path('prod_coop_par_campagne/<int:id>', prod_coop_par_campagne, name='prod_coop_par_campagne'),
@@ -87,6 +92,7 @@ urlpatterns = [
     path('parcelles/', parcelle, name='parcelles'),
     path('productions/', production, name='productions'),
     path('plantings/', planting, name='plantings'),
+    path('camp_filter/', camp_filterdashboad, name='camp_filter'),
     path('plantings/<str:code>', detail_planting, name='suivi_planting'),
-    path('export_planting_xls/', export_planting_xls, name='export_planting_xls'),
+    path('export_planting_xls/<int:id>', export_planting_xls, name='export_planting_xls'),
 ]

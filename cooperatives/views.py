@@ -42,15 +42,15 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 
 from parametres.forms import UserForm
-from parametres.models import Intitule_Formation, Projet, Espece, Campagne, Role
+from parametres.models import Intitule_Formation, Projet, Espece, Campagne, Role, Utilisateur
 from parametres.serializers import DetailMonitoringSerializer, DetailsPlantingSerializer, MonitoringEspeceSerializer, MonitoringSerializer, ParcelleSerializer, PlantingSerializer, ProducteurSerializer
 from .forms import CoopForm, EditProductionForm, MonitoringEspeceForm, ParticipantcoopForm, ProdForm, EditProdForm, ParcelleForm, RemplacementMonitoringForm, SectionForm, Sous_SectionForm, \
      FormationForm, DetailFormation, EditFormationForm, EditParcelleForm, Edit_Sous_SectionForm, MonitoringForm, \
     PlantingForm, DetailPlantingForm, ProductionForm
 from .models import Cooperative, DetailMonitoring, DetailPlantingRemplacement, MonitoringEspece, \
-    MonitoringEspeceremplacement, Participantcoop, Participantformation, RemplacementMonitoring, Section, Sous_Section, \
+    MonitoringEspeceremplacement,MonitoringObsMobile, Participantcoop, Participantformation, RemplacementMonitoring, Section, Sous_Section, \
     Producteur, Parcelle, Planting, Formation, Detail_Formation, \
-    DetailPlanting, Monitoring, Production
+    DetailPlanting, Monitoring, Production, SyncHistorique
 from .serializers import CooperativeSerliazer, ParcelleSerliazer
 
 
@@ -1720,7 +1720,7 @@ def monitoringSave(request):
                 tot_recus = tot_recus + int(rcu)
                 tot_mort = tot_mort + int(mt)
                 if int(mt) > int(rcu) :
-                    return JsonResponse({"msg": "Attention ! Plants mort d'une espece supperieur au plants recu","status":400},safe=False)
+                    return JsonResponse({"msg": "Attention ! Plants vivant d'une espece supperieur au plants recu","status":400},safe=False)
                     sys.exit(0)
                 elif int(mt) < 0:
                     return JsonResponse({"msg": "Attention ! Nombres plants ne doit pas etre inferieur à 0","status":400},safe=False)
@@ -1732,7 +1732,7 @@ def monitoringSave(request):
 
 
        if tot_recus <  tot_mort  :
-            return JsonResponse({"msg": "Attention! Total Plants mort supperieur au plants reçu","status":400},safe=False)
+            return JsonResponse({"msg": "Attention! Total Plants vivant supperieur au plants reçu","status":400},safe=False)
        else :
             monitoringForm = MonitoringForm(request.POST, request.FILES)
             if monitoringForm.is_valid():
@@ -1757,18 +1757,18 @@ def monitoringSave(request):
 
                if request.POST['remplacer'] !='0':
                     totE ='MTE'
-                    for es,de,mt in zip(espece,detailplanting,mort):
+                    for es,de,mt,rcu in zip(espece,detailplanting,mort,recus):
                         codee = str(datetime.datetime.now().microsecond)
-                        MonitoringEspece.objects.create(espece_id = int(es),code = "%s%s" % (codee, totE),detailplantingremplacement_id = de,mort=int(mt),  detailmonitoring_id = detailmonitoring.code)
+                        MonitoringEspece.objects.create(espece_id = int(es),code = "%s%s" % (codee, totE),detailplantingremplacement_id = de,mort=int(rcu) - int(mt),  detailmonitoring_id = detailmonitoring.code)
                else :
                     totE ='MTE'
-                    for es,de,mt in zip(espece,detailplanting,mort):
+                    for es,de,mt,rcu in zip(espece,detailplanting,mort,recus):
                         codee = str(datetime.datetime.now().microsecond)
-                        MonitoringEspece.objects.create(espece_id = int(es),detailplanting_id = de,mort=int(mt),code = "%s%s" % (codee, totE),  detailmonitoring_id = detailmonitoring.code)
+                        MonitoringEspece.objects.create(espece_id = int(es),detailplanting_id = de,mort=int(rcu) - int(mt),code = "%s%s" % (codee, totE),  detailmonitoring_id = detailmonitoring.code)
 
 
-               monitoring.mature_global = tot_recus - tot_mort
-               monitoring.mort_global = tot_mort
+               monitoring.mort_global = tot_recus - tot_mort
+               monitoring.mature_global = tot_mort
                monitoring.save()
 
 
@@ -2343,7 +2343,7 @@ def monitoring_form_view(request,code=None):
         if rmp > 0 :
             # print(monitoring.code)
             instance = get_object_or_404(Planting, code=code)
-            remplacer = RemplacementMonitoring.objects.filter(monitoring_id = monitoring.code).latest('code')
+            remplacer = RemplacementMonitoring.objects.filter(monitoring_id = monitoring.code).latest('-code')
             remplmonitoringViews = DetailPlantingRemplacement.objects.filter(planting_id=instance.code , remplacer_id=remplacer.code )
             monitoringForm = MonitoringForm()
             context = {
@@ -2589,6 +2589,7 @@ def getMonitoringForcoop(request):
 
 @api_view(['POST'])
 def createProducteurs(request):
+    # cooperative = Cooperative.objects.get(utilisateur=request.user.utilisateur)
     data = request.data
     if len(Producteur.objects.filter(code=data['code'])) == 0 :
         producteur = Producteur.objects.create(
@@ -2616,6 +2617,15 @@ def createProducteurs(request):
             user_id = int(data['user_id']),
         )
         serializer = ProducteurSerializer(producteur, many= False)
+
+        histosync = SyncHistorique()
+        histosync.date = datetime.datetime.now()
+        histosync.cooperative_id = int(data['cooperative_id'])
+        histosync.user_id = int(data['user_id'])
+        histosync.indice = 'PROD'
+        histosync.save()
+
+
         return Response(serializer.data)
     else:
         product = get_object_or_404(Producteur, code=data['code'])
@@ -2664,6 +2674,7 @@ def createParcelle(request):
             latitude = data['latitude'],
             longitude = data['longitude'],
             culture = data['culture'],
+            type_parcelle = data['type_parcelle'],
             certification = data['certification'],
             superficie = float(data['superficie']),
             code_certificat = data['code_certificat'],
@@ -2672,6 +2683,13 @@ def createParcelle(request):
             projet_id =int(data['projet_id']),
             user_id = int(data['user_id']),
         )
+        histosync = SyncHistorique()
+        histosync.date = datetime.datetime.now()
+        histosync.cooperative_id = int(data['cooperative_id'])
+        histosync.user_id = int(data['user_id'])
+        histosync.indice = 'PARC'
+        histosync.save()
+
         serializer = ParcelleSerializer(parcelle, many= False)
         return Response(serializer.data)
     else:
@@ -2681,6 +2699,7 @@ def createParcelle(request):
         parcelle.latitude = data['latitude'],
         parcelle.longitude = data['longitude'],
         parcelle.culture = data['culture'],
+        type_parcelle = data['type_parcelle'],
         parcelle.certification = data['certification'],
         parcelle.superficie = float(data['superficie']),
         parcelle.code_certificat = data['code_certificat'],
@@ -2709,6 +2728,14 @@ def createPlanting(request):
             date = datetime.datetime.fromisoformat(data['date'])
         )
         serializer = PlantingSerializer(planting, many=False)
+
+        histosync = SyncHistorique()
+        histosync.date = datetime.datetime.now()
+        histosync.cooperative_id = int(data['cooperative_id'])
+        histosync.user_id = int(data['user_id'])
+        histosync.indice = 'PLAN'
+        histosync.save()
+
         return Response(serializer.data)
     else:
         pass
@@ -2742,6 +2769,13 @@ def createDetailplanting(request):
         planting = get_object_or_404(Planting, code=data['planting_id'])
         planting.plant_recus = planting.plant_recus + int(data['nb_plante'])
         planting.save()
+
+        histosync = SyncHistorique()
+        histosync.date = datetime.datetime.now()
+        histosync.cooperative_id = int(data['cooperative_id'])
+        histosync.user_id = int(data['user_id'])
+        histosync.indice = 'DEPL'
+        histosync.save()
         serializer = DetailsPlantingSerializer(detailplanting, many=False)
         return Response(serializer.data)
     else :
@@ -2755,7 +2789,7 @@ def createDetailplanting(request):
         detail.save()
 
 
-
+##api monitoring
 @api_view(['POST'])
 def monitoringCreate(request):
     data = request.data
@@ -2763,19 +2797,27 @@ def monitoringCreate(request):
         if request.method == 'POST':
             monitoring = Monitoring.objects.create(
                 code = data['code'],
-                planting_id = int(data['planting_id']),
+                planting_id = data['planting_id'],
                 mort_global = int(data['mort_global']),
                 mature_global = int(data['mature_global']),
                 date = datetime.datetime.fromisoformat(data['date']),
-                user_id = data['user_id'],
-                # taux_vitalite = data['taux_vitalite'],
-                # taux_mortalite = data['taux_mortalite'],
-                # unik = data['unik']
+                user_id = int(data['user_id']),
             )
+            histosync = SyncHistorique()
+            histosync.date = datetime.datetime.now()
+            histosync.cooperative_id = int(data['cooperative_id'])
+            histosync.user_id = int(data['user_id'])
+            histosync.indice = 'MNT'
+            histosync.save()
             serializer = MonitoringSerializer(monitoring, many=False)
             return Response(serializer.data)
     else:
-        pass
+        moni = get_object_or_404(Monitoring, code = data['code'])
+        moni.mort_global = int(data['mort_global'])
+        moni.mature_global = int(data['mature_global'])
+        moni.date = datetime.datetime.fromisoformat(data['date'])
+        moni.user_id = int(data['user_id'])
+        moni.save()
 
 
 
@@ -2784,7 +2826,6 @@ def updateMonitoring(request,code):
         dataup = request.data
         monitoring= Monitoring.objects.get(code=code)
         serial = MonitoringSerializer(monitoring, data = dataup)
-        # print(serial)
         if serial.is_valid(raise_exception=True):
             serial.save()
 
@@ -2797,25 +2838,133 @@ def createDetailmonitoring(request):
     data = request.data
     detailmonitoring = DetailMonitoring.objects.create(
         code = data['code'],
-        monitoring_id = data['monitoring'],
-        espece = data['espece'],
-        # unik = data['unik']
+        monitoring_id = data['monitoring_id'],
+        user_id = int(data['user_id'])
     )
+    histosync = SyncHistorique()
+    histosync.date = datetime.datetime.now()
+    histosync.cooperative_id = int(data['cooperative_id'])
+    histosync.user_id = int(data['user_id'])
+    histosync.indice = 'DMT'
+    histosync.save()
     serializer = DetailMonitoringSerializer(detailmonitoring, many=False)
     return Response(serializer.data)
 
 
 @api_view(['POST'])
+def obsMonitoringFunc(request):
+    data = request.data
+    observation = MonitoringObsMobile.objects.create(
+        monitoring_id = data['monitoring_id'],
+        observation_id = int(data['obsmonitoring_id']),
+        user_id = int(data['user_id'])
+    )
+
+    histosync = SyncHistorique()
+    histosync.date = datetime.datetime.now()
+    histosync.cooperative_id = int(data['cooperative_id'])
+    histosync.user_id = int(data['user_id'])
+    histosync.indice = 'OBM'
+    histosync.save()
+    serializer = MonitoringObservationSerializer(observation, many=False)
+    return Response(serializer.data)
+
+
+
+@api_view(['POST'])
 def createEspecemonitoring(request):
     data = request.data
-    especemonitoring = MonitoringEspece.objects.create(
-        code = data['code'],
-        detailmonitoring_id = data['detailmonitoring'],
-        espece = data['espece'],
-        detailplanting_id = data['detailplanting'],
-        mort = data['mort'],
-        detailplantingremplacement_id = data['detailplantingremplacement'],
-        taux_mortalite = data['taux_mortalite'],
-    )
-    serializer = MonitoringEspeceSerializer(especemonitoring, many=False)
-    return Response(serializer.data)
+    if len(MonitoringEspece.objects.filter(code = data['code'])) == 0:
+        if request.method == "POST":
+            especemonitoring = MonitoringEspece.objects.create(
+                code = data['code'],
+                detailmonitoring_id = data['detailmonitoring_id'],
+                espece_id = int(data['espece_id']),
+                detailplanting_id = data['detailplanting_id'],
+                mort = int(data['mort']),
+                # detailplantingremplacement_id = data['detailplantingremplacement'],
+                # taux_mortalite = data['taux_mortalite'],
+            )
+
+            histosync = SyncHistorique()
+            histosync.date = datetime.datetime.now()
+            histosync.cooperative_id = int(data['cooperative_id'])
+            histosync.user_id = int(data['user_id'])
+            histosync.indice = 'MOE'
+            histosync.save()
+            serializer = MonitoringEspeceSerializer(especemonitoring, many=False)
+            return Response(serializer.data)
+    else:
+        especeMoni = get_object_or_404(MonitoringEspece, code = data['code'])
+        especeMoni.mort = int(data['mort'])
+        especeMoni.user_id = int(data['user_id'])
+        especeMoni.save()
+
+##########################28/06/2022################MPI###################HISTORIQUE#############
+
+@login_required(login_url='connexion')
+def view_historique(request):
+    activate = "historique"
+    role = Role.objects.get(id = request.user.utilisateur.role_id)
+    cooperative = Cooperative.objects.get(utilisateur=request.user.utilisateur)
+    utilisatuer = Utilisateur()
+    historiques = SyncHistorique.objects.filter(cooperative_id = cooperative.id).values('date','user__username','user__id','user__last_name','user__first_name').distinct().annotate(ind=Count('indice'))
+
+    syncUser = []
+    User = cooperative.utilisateur.all()
+    for s in User :
+        if str(s.role) == 'technicien' :
+            syncUser.append(s)
+
+
+
+    context = {
+        'cooperative': cooperative,
+        'activate': activate,
+        'role':role,
+        'syncUser':syncUser,
+        'historiques':historiques,
+    }
+    return render(request, 'historique/histoPage.html', context)
+
+
+def consult_histo(request):
+    id = request.GET.get('id')
+    date = request.GET.get('date')
+    cooperative = Cooperative.objects.get(utilisateur=request.user.utilisateur)
+    prodint = 0
+    parcint = 0
+    planint = 0
+    deplint = 0
+    # historiques = SyncHistorique.objects.filter(cooperative_id = cooperative.id).values('date','user__username','user__id','user__last_name','user__first_name').distinct().annotate(ind=Count('indice'))
+    prod = SyncHistorique.objects.filter(cooperative_id = cooperative.id).filter(indice = 'PROD').filter(date=date,user_id  = int(id)).values('indice').annotate(ind=Count('indice'))
+    parc = SyncHistorique.objects.filter(cooperative_id = cooperative.id).filter(indice = 'PARC').filter(date=date,user_id  = int(id)).values('indice').annotate(ind=Count('indice'))
+    plan = SyncHistorique.objects.filter(cooperative_id = cooperative.id).filter(indice = 'PLAN').filter(date=date,user_id  = int(id)).values('indice').annotate(ind=Count('indice'))
+    depl = SyncHistorique.objects.filter(cooperative_id = cooperative.id).filter(indice = 'DEPL').filter(date=date,user_id  = int(id)).values('indice').annotate(ind=Count('indice'))
+
+    for p in prod :
+        prodint = p['ind']
+
+
+    for pa in parc :
+        parcint = pa['ind']
+
+
+    for pl in plan :
+        planint = pl['ind']
+
+
+    for de in depl :
+        deplint = de['ind']
+
+
+    context = {
+        'prod':prodint,
+        'parc':parcint,
+        'plan':planint,
+        'depl':deplint,
+        'date':date
+	}
+
+    templateStr = render_to_string("historique/consult_view.html", context)
+    return JsonResponse({'templateStr':templateStr,'date':date,'id':id},safe=False)

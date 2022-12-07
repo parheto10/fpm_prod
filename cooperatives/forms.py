@@ -149,7 +149,7 @@ class EditProdForm(forms.ModelForm):
             'num_document',
             'document',
         ]
-        
+
     def get_cooperative(self, request, *args, **kwargs):
         cooperative = Cooperative.objects.get(user_id=request.user.id)
         producteur_obj = Producteur.objects.filter(cooperative_id=cooperative)
@@ -167,7 +167,7 @@ class ParcelleForm(forms.ModelForm):
     class Meta:
         model=Parcelle
         fields=[
-            'code',
+            # 'code',
             'code_certificat',
             'annee_certificat',
             'annee_acquis',
@@ -178,7 +178,8 @@ class ParcelleForm(forms.ModelForm):
             'longitude',
             'culture',
             'certification',
-            'superficie'
+            'superficie',
+            'type_parcelle'
         ]
 
     #producteur = AutoCompleteField('producteur')
@@ -195,7 +196,7 @@ class EditParcelleForm(forms.ModelForm):
     class Meta:
         model=Parcelle
         fields=[
-            'code',
+            #  'code',
             'producteur',
             'projet',
             'acquisition',
@@ -203,7 +204,8 @@ class EditParcelleForm(forms.ModelForm):
             'longitude',
             'culture',
             'certification',
-            'superficie'
+            'superficie',
+            'type_parcelle'
         ]
 
 class FormationForm(forms.ModelForm):
@@ -214,7 +216,7 @@ class FormationForm(forms.ModelForm):
             'formateur',
             'note_formateur',
             'intitule',
-            'campagne',            
+            'campagne',
             'structureformateur',
             'niveauformateur',
             'debut',
@@ -293,14 +295,14 @@ class MonitoringForm(ModelForm):
             "mature_global",
             "observation",
             #"planting"
-            
+
         ]
 
 #class DetailMonitoringForm(ModelForm):
 #    class Meta:
 #        model = DetailMonitoring
 #        exclude = ['monitoring',]
-        
+
 
 class MonitoringEspeceForm(ModelForm):
     class Meta:
@@ -310,7 +312,7 @@ class MonitoringEspeceForm(ModelForm):
             "espece",
             "detailplanting",
             "mort",
-            #"mature",            
+            #"mature",
         ]
 
 

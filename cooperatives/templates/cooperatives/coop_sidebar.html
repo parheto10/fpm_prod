@@ -13,7 +13,7 @@
                     <a href="{% url 'cooperatives:parcelles' %}" {% if activate == "parcelles" %}class="active"{% else %} class="" {% endif %}><i class="glyphicon glyphicon-map-marker"></i> GESTIONS PARCELLES</a>
                 </li>
                 <li>
-                    <a href="{% url 'cooperatives:productions' %}" {% if activate == "productions" %}class="active"{% else %} class="" {% endif %}><i class="glyphicon glyphicon-map-marker"></i>  GESTIONS PRODUCTIONS</a>
+                    <a href="{% url 'cooperatives:productions' %}" {% if activate == "productions" %}class="active"{% else %} class="" {% endif %}><i class="fa fa-apple fa-fw"></i>  GESTIONS PRODUCTIONS</a>
                 </li>
                 <li>
                     <a href="{% url 'cooperatives:formations' %}" {% if activate == "formations" %}class="active"{% else %} class="" {% endif %}><i class="fa fa-bookmark fa-fw"></i> GESTIONS FORMATIONS</a>
@@ -26,6 +26,7 @@
                     <a href="{% url 'cooperatives:map_by_cooperative' %}" target="_blank"><i class="fa fa-map fa-fw"></i> CARTOGRAPHIE</a>
                 </li>
                 <li>
+                    <a href="{% url 'cooperatives:view_historique' %}" ><i class="fa fa-book fa-fw"></i> HISTORIQUE</a>
                 </li>
                 <li>
                 </li>

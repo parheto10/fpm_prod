@@ -13,16 +13,16 @@
             <li>
 {#                <a href="{% url 'clients:projets' %}" class="active"><i class="fa fa-dashboard fa-fw"></i> GESTION PROJETS</a>#}
             </li>
-         
+
             <li>
                 <a href="{% url 'clients:producteurs' %}" {% if activate == "pepiniere" %}class="active"{% else %} class="" {% endif %}><i class="fa fa-users fa-fw"></i> GESTION PRODUCTEURS</a>
             </li>
             <li>
                 <a href="{% url 'clients:parcelles' %}" {% if activate == "pepiniere" %}class="active"{% else %} class="" {% endif %}><i class="fa fa-map" aria-hidden="true"></i> GESTION PARCELLES</a>
             </li>
-            <li>
-                <a href="{% url 'clients:plantings' %}" {% if activate == "pepiniere" %}class="active"{% else %} class="" {% endif %}><i class="fa fa-tree" aria-hidden="true"></i> GESTION PLANTINGS</a>
-            </li>
+            <!--<li>-->
+            <!--    <a href="{% url 'clients:plantings' %}" {% if activate == "pepiniere" %}class="active"{% else %} class="" {% endif %}><i class="fa fa-tree" aria-hidden="true"></i> GESTION PLANTINGS</a>-->
+            <!--</li>-->
             <li>
                 <a href="{% url 'clients:productions' %}" {% if activate == "pepiniere" %}class="active"{% else %} class="" {% endif %}><i class="fa fa-cubes" aria-hidden="true"></i> GESTION PRODUCTIONS</a>
             </li>

@@ -1,13 +1,13 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from cooperatives.models import DetailMonitoring, DetailPlantingRemplacement, Monitoring, MonitoringEspece, Producteur, Parcelle, RemplacementMonitoring, Section, Sous_Section, Cooperative, Formation, Planting, DetailPlanting
+from cooperatives.models import DetailMonitoring, DetailPlantingRemplacement, Monitoring, MonitoringEspece, Producteur, Parcelle, RemplacementMonitoring, Section, Sous_Section, Cooperative, Formation, Planting, DetailPlanting,MonitoringObsMobile
 from parametres.models import Pepiniere, Projet, Projet_Cat, Campagne, Espece, Cat_Plant, Origine, Sous_Prefecture, Utilisateur
 from clients.models import Client
 
 
 class UtilisateurUserSerialiser(serializers.ModelSerializer):
-    
+
     class Meta:
         model = Utilisateur
         fields = ('contact','cooperative','role')
@@ -133,19 +133,19 @@ class CooperativeSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'user',
-            'region',
+            # 'region',
             'sigle',
-            'projet',
-            'contacts',
-            'logo',
-            'appartenance'
+            # 'projet',
+            # 'contacts',
+            # 'logo',
+            # 'appartenance'
         )
         depth = 1
-    def to_representation(self, instance):
-        response = super().to_representation(instance)
-        # response['region'] = ClientSerializer(instance.client).data
-        # response['projet'] = ProjetSerializer(instance.projet).data
-        return response
+    # def to_representation(self, instance):
+    #     response = super().to_representation(instance)
+    #     # response['region'] = ClientSerializer(instance.client).data
+    #     # response['projet'] = ProjetSerializer(instance.projet).data
+    #     return response
 
 class SectionSerializer(serializers.ModelSerializer):
     # cooperative = CooperativeSerializer(read_only=True)
@@ -184,37 +184,37 @@ class SousSectionSerializer(serializers.ModelSerializer):
     #     return response
 
 class ProducteurSerializer(serializers.ModelSerializer):
-    
+
     class Meta:
         model = Producteur
         fields = (
             'code',
-            'origine',
-            'cooperative',
-            'sous_prefecture',
-            'type_producteur',
+            # 'origine',
+            # 'cooperative',
+            # 'sous_prefecture',
+            # 'type_producteur',
             'nom',
-            'dob',
-            'genre',
-            'contacts',
+            # 'dob',
+            # 'genre',
+            # 'contacts',
             'localite',
-            'section',
-            'sous_section',
-            'nb_parcelle',
-            'image',
-            'type_document',
-            'num_document',
-            'document',
-            'nb_enfant',
-            'nb_epouse',
-            'enfant_scolarise',
-            'nb_personne',
-            'user_id',
-            'created_at',
-            'updated_at'
+            # 'section',
+            # 'sous_section',
+            # 'nb_parcelle',
+            # 'image',
+            # 'type_document',
+            # 'num_document',
+            # 'document',
+            # 'nb_enfant',
+            # 'nb_epouse',
+            # 'enfant_scolarise',
+            # 'nb_personne',
+            # 'user_id',
+            # 'created_at',
+            # 'updated_at'
         )
         depth = 1
-    
+
 
 class ParcelleSerializer(serializers.ModelSerializer):
     #producteur = ProducteurSerializer(many=True)
@@ -229,13 +229,13 @@ class ParcelleSerializer(serializers.ModelSerializer):
             'culture',
             'certification',
             'superficie',
-            'projet',
+            # 'projet',
             'code_certificat',
             'annee_certificat',
             'annee_acquis',
-            'user_id',
-            'created_at',
-            'updated_at'
+            # 'user_id',
+            # 'created_at',
+            # 'updated_at'
         )
         depth = 1
 
@@ -277,15 +277,15 @@ class PlantingSerializer(serializers.ModelSerializer):
             "plant_recus",
             "plant_total",
             "date",
-            'user_id'
+            # 'user_id'
         )
         depth = 1
-    def to_representation(self, instance):
-        response = super().to_representation(instance)
-        response['parcelle'] = ParcelleSerializer(instance.parcelle).data
-        # response['projet'] = ProjetSerializer(instance.projet).data
-        # response['campagne'] = CampagneSerializer(instance.campagne).data
-        return response
+    # def to_representation(self, instance):
+    #     response = super().to_representation(instance)
+    #     response['parcelle'] = ParcelleSerializer(instance.parcelle).data
+    #     # response['projet'] = ProjetSerializer(instance.projet).data
+    #     # response['campagne'] = CampagneSerializer(instance.campagne).data
+    #     return response
 
 class DetailsPlantingSerializer(serializers.ModelSerializer):
     planting = PlantingSerializer(read_only=True)
@@ -300,12 +300,12 @@ class DetailsPlantingSerializer(serializers.ModelSerializer):
         )
         depth = 1
 
-    def to_representation(self, instance):
-        response = super().to_representation(instance)
-        # response['planting'] = PlantingSerializer(instance.planting).data
-        # response['espece'] = EspeceSerializer(instance.espece).data
-        # response['campagne'] = CampagneSerializer(instance.campagne).data
-        return response
+    # def to_representation(self, instance):
+    #     response = super().to_representation(instance)
+    #     # response['planting'] = PlantingSerializer(instance.planting).data
+    #     # response['espece'] = EspeceSerializer(instance.espece).data
+    #     # response['campagne'] = CampagneSerializer(instance.campagne).data
+    #     return response
 
 
 
@@ -313,7 +313,7 @@ class PepiniereSerializer(serializers.ModelSerializer):
     #producteur = ProducteurSerializer(many=True)
     class Meta:
         model=Pepiniere
-        fields=( 
+        fields=(
             'id',
             'projet',
             'campagne',
@@ -344,10 +344,10 @@ class PepiniereSerializer(serializers.ModelSerializer):
 
 
 class MonitoringSerializer(serializers.ModelSerializer):
-    
+
     class Meta:
         model=Monitoring
-        fields=( 
+        fields=(
             'code',
             'planting',
             'mort_global',
@@ -362,7 +362,7 @@ class RemplacementMonitoringSerializer(serializers.ModelSerializer):
 
     class Meta:
         model=RemplacementMonitoring
-        fields=( 
+        fields=(
             'code',
             'date',
             'espece',
@@ -375,7 +375,7 @@ class DetailPlantingRemplacementSerializer(serializers.ModelSerializer):
 
     class Meta:
         model=DetailPlantingRemplacement
-        fields=( 
+        fields=(
             'code',
             'planting',
             'espece',
@@ -389,7 +389,7 @@ class MonitoringEspeceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model=MonitoringEspece
-        fields=( 
+        fields=(
             'code',
             'detailmonitoring',
             'espece',
@@ -405,11 +405,24 @@ class DetailMonitoringSerializer(serializers.ModelSerializer):
 
     class Meta:
         model=DetailMonitoring
-        fields=( 
+        fields=(
             'code',
             'monitoring',
             'espece',
         )
         depth = 1
+
+
+class MonitoringObservationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model=MonitoringObsMobile
+        fields=(
+            'id',
+            'monitoring',
+            'observation',
+        )
+        depth = 1
+
 
 

@@ -6,18 +6,18 @@
      } else {
         mapId.requestFullscreen();
      }
-    
+
  }
- 
+
  //leaflet Browser impression
  L.control.browserPrint({position:'topright'}).addTo(map);
 
   //Recherche Leaflet
   L.Control.geocoder().addTo(map);
 
-  
+
  //Ajouter Fonction de Calcul de Distance
- L.control.measure({ 
+ L.control.measure({
     primaryLengthUnit: 'kilometres',
     secondaryLengthUnit: 'metres',
     primaryAreaUnit: 'hectares',

@@ -3,7 +3,7 @@
 <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
     <div class="navbar-header">
         {% if user.is_authenticated %}
-            <a class="navbar-brand" href="{% url 'clients:dashboard' %}">PANNEAU D'ADMINISTRATION - {{ user.username }}</a>
+            <a class="navbar-brand" href="{% url 'clients:dashboard' %}">ADMINISTRATION - {{ user.username | upper }}</a>
         {% endif %}
     </div>
 
@@ -18,7 +18,7 @@
         {% if user.is_authenticated %}
             <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    <i class="fa fa-user fa-fw" style="font-size: 18px; font-weight: bold"></i> {{ user.username }} <b class="caret"></b>
+                    <i class="fa fa-user fa-fw" style="font-size: 18px; font-weight: bold; text-transform: uppercase;"></i> {{ user.username | upper }} <b class="caret"></b>
                 </a>
                 <ul class="dropdown-menu dropdown-user">
                     <li><a href="{% url 'logout' %}"><i class="fa fa-sign-out fa-fw"></i> Déconnexion</a>
@@ -27,7 +27,7 @@
             </li>
         {% endif %}
 
-       
+
     </ul>
 {#    <div class="col-sm-6" style="text-align-last: end">#}
 {#        <select id="monselect" style="text-align: center">#}
