@@ -253,7 +253,11 @@
         <script src="{% static 'js/leaflet.markercluster.js' %}"></script>
         <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 {#        <script src="{% static 'js/index_parif.js' %}"></script>#}
-        <script src="{% static 'js/index_planting_parif.js' %}"></script>
+            {% if not cluster %}
+            <script src="{% static 'js/index_planting_parif.js' %}"></script>
+            {% else %}
+            <script src="{% static 'js/index_planting_cluster.js' %}"></script>
+            {% endif %}
         <script src="{% static 'js/index_parif_coop.js' %}"></script>
         <script src="{% static 'js/index_parif_section.js' %}"></script>
         <script src="{% static 'js/index_searching_parcelle.js' %}"></script>
