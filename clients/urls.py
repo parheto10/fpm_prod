@@ -10,6 +10,7 @@ from .views import (
     detail_planting,
     export_formation_to_pdf,
     export_planting_xls,
+    noClusterCarte,
     plants_par_section,
     projet,
     detail_proj,
@@ -95,4 +96,5 @@ urlpatterns = [
     path('camp_filter/', camp_filterdashboad, name='camp_filter'),
     path('plantings/<str:code>', detail_planting, name='suivi_planting'),
     path('export_planting_xls/<int:id>', export_planting_xls, name='export_planting_xls'),
+    path('map_parcelles/', noClusterCarte, name='catre_cluster'),
 ]

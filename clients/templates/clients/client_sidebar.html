@@ -27,14 +27,19 @@
                 <a href="{% url 'clients:productions' %}" {% if activate == "pepiniere" %}class="active"{% else %} class="" {% endif %}><i class="fa fa-cubes" aria-hidden="true"></i> GESTION PRODUCTIONS</a>
             </li>
             <li>
-                <a href="{% url 'catre_parcelles' %}" target="_blank"><i class="fa fa-map-marker fa-fw"></i>CARTE PARCELLES</a>
-            </li>
-
-            <li>
-                <a href="{% url 'catre_pepiniere' %}" target="_blank"><i class="fa fa-map-pin" aria-hidden="true"></i> CARTE PEPINIERES</a>
-            </li>
-            <li>
-                {#                  <a href="#" target="_blank"><i class="fa fa-map-marker fa-fw"></i> PLANTINGS</a>#}
+                <a href="#">CARTES <span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level">
+                    <li>
+                        <a href="{% url 'catre_parcelles' %}" target="_blank"><i class="fa fa-map-marker fa-fw"></i>CLUSTERS</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'clients:catre_cluster' %}" target="_blank"><i class="fa fa-map-marker fa-fw"></i>SIMPLE</a>
+                    </li>
+        
+                    <li>
+                        <a href="{% url 'catre_pepiniere' %}" target="_blank"><i class="fa fa-map-pin" aria-hidden="true"></i> CARTE PEPINIERES</a>
+                    </li>
+                </ul>
             </li>
         </ul>
     </div>

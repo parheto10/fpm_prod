@@ -1145,3 +1145,13 @@ def DetailPlantingsbyNoyear(request):
         'labels': labels,
         'data': data,
     })
+    
+    
+def noClusterCarte(request):
+    cooperatives = Cooperative.objects.filter(utilisateur=request.user.utilisateur)
+    cluster = 1
+    context = {
+        'cooperatives': cooperatives,
+        "cluster":cluster
+    }
+    return render(request, 'carte.html', context)
