@@ -7,7 +7,7 @@ const icon = L.icon({
 });
 
 Promise.all([
-  fetch("https://fpmpro.pythonanywhere.com/api/v1/map_pepinieres/"),
+  fetch("http://127.0.0.1:8000/api/v1/map_pepinieres/"),
 
 ]).then(async ([response1, response2]) => {
   const responseData1 = await response1.json();
@@ -18,7 +18,7 @@ Promise.all([
   //const data2 = responseData2;
 
   const pepinieres = L.featureGroup().addTo(map);
-  //url = "https://fpmpro.pythonanywhere.com/api/v1/map_pepinieres/";
+  //url = "http://127.0.0.1:8000/api/v1/map_pepinieres/";
 
 data1.forEach(({id,cooperative, region, ville, site, latitude, longitude, technicien, contacts_technicien,fournisseur,contacts_fournisseur, superviseur, contacts_superviseur, production_plant,sachet_recus}) => {
     pepinieres.addLayer(
@@ -56,7 +56,7 @@ data1.forEach(({id,cooperative, region, ville, site, latitude, longitude, techni
                 <tr>
                 <th scope="col"><b>ESPECES</b></th>
                 <td class="text-uppercase text-center">
-                    <a class="btn btn-success" href="#" onclick="show_semence('https://fpmpro.pythonanywhere.com/semence_by_pepiniere/${id}')" target="_blank"  role="button"><i class="glyphicon glyphicon-tree-deciduous"></i></a>
+                    <a class="btn btn-success" href="#" onclick="show_semence('http://127.0.0.1:8000/semence_by_pepiniere/${id}')" target="_blank"  role="button"><i class="glyphicon glyphicon-tree-deciduous"></i></a>
                 </td>
             </tr>
             </tbody>

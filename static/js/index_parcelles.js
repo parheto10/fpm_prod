@@ -7,8 +7,8 @@ const icon = L.icon({
 });
 
 Promise.all([
-  fetch("https://fpmpro.pythonanywhere.com/cooperatives/parcelle_list/"),
-  fetch("https://fpmpro.pythonanywhere.com/cooperatives/parcelle_list/")
+  fetch("http://127.0.0.1:8000/cooperatives/parcelle_list/"),
+  fetch("http://127.0.0.1:8000/cooperatives/parcelle_list/")
 ]).then(async ([response1, response2]) => {
   const responseData1 = await response1.json();
   const responseData2 = await response2.json();
