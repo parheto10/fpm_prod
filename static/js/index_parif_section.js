@@ -33,7 +33,7 @@ function viewMapSection(id ,url){
               if(response.id != "" && response.id_coop != ""){
 
                 Promise.all([
-                  fetch("http://127.0.0.1:8000/api/v1/section_parcelles/"+response.id),
+                  fetch("https://fpmpro.pythonanywhere.com/api/v1/section_parcelles/"+response.id),
                 ]).then(async ([response1]) => {
                   const responseData1 = await response1.json();
                   //  const responseData2 = await response2.json();
@@ -89,7 +89,7 @@ function viewMapSection(id ,url){
                                 <tr>
                                     <th scope="col"><b>SUIVIS</b></th>
                                     <td class="text-uppercase text-center">
-                                        <a class="btn btn-default " style="padding: 1px 8px 1px 8px;" href="#" title="voir" onclick="show_planting('http://127.0.0.1:8000/show_planting/${code}')" ><i class="glyphicon glyphicon-eye-open"></i></a>
+                                        <a class="btn btn-default " style="padding: 1px 8px 1px 8px;" href="#" title="voir" onclick="show_planting('https://fpmpro.pythonanywhere.com/show_planting/${code}')" ><i class="glyphicon glyphicon-eye-open"></i></a>
                                     </td>
                                 </tr>
                             </tbody>
@@ -109,7 +109,7 @@ function viewMapSection(id ,url){
 
               }else if(response.id == "" && response.id_coop != ""){
                 Promise.all([
-                  fetch("http://127.0.0.1:8000/api/v1/coop_parcelles/"+response.id_coop),
+                  fetch("https://fpmpro.pythonanywhere.com/api/v1/coop_parcelles/"+response.id_coop),
                 ]).then(async ([response1]) => {
                   const responseData1 = await response1.json();
                   //  const responseData2 = await response2.json();
@@ -165,7 +165,7 @@ function viewMapSection(id ,url){
                                 <tr>
                                     <th scope="col"><b>SUIVIS</b></th>
                                     <td class="text-uppercase text-center">
-                                        <a class="btn btn-default " style="padding: 1px 8px 1px 8px;" href="#" title="voir" onclick="show_planting('http://127.0.0.1:8000/show_planting/${code}')" ><i class="glyphicon glyphicon-eye-open"></i></a>
+                                        <a class="btn btn-default " style="padding: 1px 8px 1px 8px;" href="#" title="voir" onclick="show_planting('https://fpmpro.pythonanywhere.com/show_planting/${code}')" ><i class="glyphicon glyphicon-eye-open"></i></a>
                                     </td>
                                 </tr>
                             </tbody>
