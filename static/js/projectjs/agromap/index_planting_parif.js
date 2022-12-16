@@ -177,23 +177,17 @@ var baseMaps = {
 // var shapeCargill = L.geoJSON(cargillData).addTo(map);
 
 
-var shapeCargill = L.geoJSON(shape, {
-        onEachFeature: function (feature, layer) {
-            layer.bindPopup('<strong> Contours parcelle</strong>')
-        },
-        style : {
-            fillColor: 'grey',
-            'fillOpacity': 0.1,
-            color:'red'
-        }
-    }).addTo(map);
 
+
+shapeCar.addTo(map);
+shapeBf.addTo(map);
+shapeAdry.addTo(map);
 var overLayMaps = {
-  'SHAPES ' : shapeCargill,
+  'SHAPES CARGILL' : shapeCar,
+  'SHAPES BLUE FOREST' : shapeBf,
+  'SHAPES ADRYADA' : shapeAdry,
  // 'ABIDJAN': singleMarker
 }
-
-
 
 L.control.layers(baseMaps, overLayMaps, {collapse :false, position: 'topleft'}).addTo(map);
 
