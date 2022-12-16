@@ -8,7 +8,7 @@ const icon = L.icon({
 
 
 Promise.all([
-  fetch("https://fpmpro.pythonanywhere.com/api/planting/v1/"),
+  fetch("http://127.0.0.1:8000/api/planting/v1/"),
 ]).then(async ([response1]) => {
 
   const responseData1 = await response1.json();
@@ -66,7 +66,7 @@ Promise.all([
                 <tr>
                     <th scope="col"><b>SUIVIS</b></th>
                     <td class="text-uppercase text-center">
-                        <a class="btn btn-default " style="padding: 1px 8px 1px 8px;" href="#" title="voir" onclick="show_planting('https://fpmpro.pythonanywhere.com/show_planting/${code}')" ><i class="glyphicon glyphicon-eye-open"></i></a>
+                        <a class="btn btn-default " style="padding: 1px 8px 1px 8px;" href="#" title="voir" onclick="show_planting('http://127.0.0.1:8000/show_planting/${code}')" ><i class="glyphicon glyphicon-eye-open"></i></a>
                     </td>
                 </tr>
             </tbody>
@@ -177,23 +177,17 @@ var baseMaps = {
 // var shapeCargill = L.geoJSON(cargillData).addTo(map);
 
 
-var shapeCargill = L.geoJSON(shape, {
-        onEachFeature: function (feature, layer) {
-            layer.bindPopup('<strong> Contours parcelle</strong>')
-        },
-        style : {
-            fillColor: 'grey',
-            'fillOpacity': 0.1,
-            color:'red'
-        }
-    }).addTo(map);
 
+
+shapeCar.addTo(map);
+shapeBf.addTo(map);
+shapeAdry.addTo(map);
 var overLayMaps = {
-  'SHAPES ' : shapeCargill,
+  'SHAPES CARGILL' : shapeCar,
+  'SHAPES BLUE FOREST' : shapeBf,
+  'SHAPES ADRYADA' : shapeAdry,
  // 'ABIDJAN': singleMarker
 }
-
-
 
 L.control.layers(baseMaps, overLayMaps, {collapse :false, position: 'topleft'}).addTo(map);
 

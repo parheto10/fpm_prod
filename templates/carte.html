@@ -249,6 +249,12 @@
         <script src="{% static 'js/projectjs/shape_bf.js' %}"></script>
         {% elif user.id == 55 %}
         <script src="{% static 'js/projectjs/shape_karidja.js' %}"></script>
+
+        {% elif user.id == 37 %}
+        <script src="{% static 'js/projectjs/agromap/shape_cargill.js' %}"></script>
+        <script src="{% static 'js/projectjs/agromap/shape_bf.js' %}"></script>
+        <script src="{% static 'js/projectjs/agromap/shape_karidja.js' %}"></script>
+        <script src="{% static 'js/projectjs/agromap/agro_geojson.js' %}"></script>
         {% endif %}
         <script src="{% static 'js/bootstrap.min.js' %}"></script>
         <script src="{% static 'js/leaflet.ajax.js' %}"></script>
@@ -257,9 +263,15 @@
         <script src="{% static 'js/leaflet-measure.js' %}"></script>
         <script src="{% static 'js/leaflet.markercluster.js' %}"></script>
         <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
 {#        <script src="{% static 'js/index_parif.js' %}"></script>#}
             {% if not cluster %}
+            {% if user.id == 37 %}
+            <script src="{% static 'js/projectjs/agromap/index_planting_parif.js' %}"></script>
+            {% else %}
             <script src="{% static 'js/index_planting_parif.js' %}"></script>
+            {% endif %}
+     
             {% else %}
             <script src="{% static 'js/index_planting_cluster.js' %}"></script>
             {% endif %}
