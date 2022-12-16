@@ -243,8 +243,13 @@
         <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <script src="{% static 'js/jquery.min.js' %}"></script>
-        <script src="{% static 'js/shapes.js' %}"></script>
-        <!--<script src="{% static 'js/adryada.js' %}"></script>-->
+        {% if user.id == 3 %}
+        <script src="{% static 'js/projectjs/shape_cargill.js' %}"></script>
+        {% elif user.id == 90 %}
+        <script src="{% static 'js/projectjs/shape_bf.js' %}"></script>
+        {% elif user.id == 55 %}
+        <script src="{% static 'js/projectjs/shape_karidja.js' %}"></script>
+        {% endif %}
         <script src="{% static 'js/bootstrap.min.js' %}"></script>
         <script src="{% static 'js/leaflet.ajax.js' %}"></script>
         <script src="{% static 'js/OpenLayers.js' %}"></script>
@@ -262,7 +267,8 @@
         <script src="{% static 'js/index_parif_section.js' %}"></script>
         <script src="{% static 'js/index_searching_parcelle.js' %}"></script>
         <script src="{% static 'js/Web-GIS.js' %}"></script>
-        <script src="{% static 'js/tracks.js' %}"></script>
+
+       
         <script src="{% static 'js/function.js' %}"></script>
         <script type="text/javascript" src="{% static 'js/loaders/blockui.min.js' %}"></script>
         <script src="{% static 'js/jquery.blockUI.js' %}"></script>
