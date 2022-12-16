@@ -175,7 +175,7 @@ var baseMaps = {
 // });
 
 // var shapeCargill = L.geoJSON(cargillData).addTo(map);
-var shapeCargill = L.geoJSON(cargillData, {
+var shapeCargill = L.geoJSON(shape, {
         onEachFeature: function (feature, layer) {
             layer.bindPopup('<strong> Contours parcelle</strong>')
         },
