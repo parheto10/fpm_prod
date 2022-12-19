@@ -29,7 +29,7 @@ function viewMapCoop(id,url){
 
           if(response.id != ""){
             Promise.all([
-              fetch("https://fpmpro.pythonanywhere.com/api/v1/coop_parcelles/"+response.id),
+              fetch("https://akidompro.pythonanywhere.com/api/v1/coop_parcelles/"+response.id),
             ]).then(async ([response1]) => {
               const responseData1 = await response1.json();
               //  const responseData2 = await response2.json();
@@ -85,7 +85,7 @@ function viewMapCoop(id,url){
                             <tr>
                                 <th scope="col"><b>SUIVIS</b></th>
                                 <td class="text-uppercase text-center">
-                                    <a class="btn btn-default " style="padding: 1px 8px 1px 8px;" href="#" title="voir" onclick="show_planting('https://fpmpro.pythonanywhere.com/show_planting/${code}')" ><i class="glyphicon glyphicon-eye-open"></i></a>
+                                    <a class="btn btn-default " style="padding: 1px 8px 1px 8px;" href="#" title="voir" onclick="show_planting('https://akidompro.pythonanywhere.com/show_planting/${code}')" ><i class="glyphicon glyphicon-eye-open"></i></a>
                                 </td>
                             </tr>
                         </tbody>
@@ -113,7 +113,7 @@ function viewMapCoop(id,url){
 
             $(".secta").css('display','none');
             Promise.all([
-              fetch("https://fpmpro.pythonanywhere.com/api/planting/v1/"),
+              fetch("https://akidompro.pythonanywhere.com/api/planting/v1/"),
             ]).then(async ([response1]) => {
               const responseData1 = await response1.json();
             //  const responseData2 = await response2.json();
@@ -169,7 +169,7 @@ function viewMapCoop(id,url){
                           <tr>
                               <th scope="col"><b>SUIVIS</b></th>
                               <td class="text-uppercase text-center">
-                                  <a class="btn btn-default " style="padding: 1px 8px 1px 8px;" href="#" title="voir" onclick="show_planting('https://fpmpro.pythonanywhere.com/show_planting/${code}')" ><i class="glyphicon glyphicon-eye-open"></i></a>
+                                  <a class="btn btn-default " style="padding: 1px 8px 1px 8px;" href="#" title="voir" onclick="show_planting('https://akidompro.pythonanywhere.com/show_planting/${code}')" ><i class="glyphicon glyphicon-eye-open"></i></a>
                               </td>
                           </tr>
                       </tbody>

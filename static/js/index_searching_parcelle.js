@@ -36,13 +36,13 @@ function searchingParcelle(url) {
                   iconAnchor: [10, 41],
                   popupAnchor: [2, -40],
                   iconUrl: "https://unpkg.com/leaflet@1.6/dist/images/marker-icon.png",
-                  // iconUrl: "https://fpmpro.pythonanywhere.com/static/img/icons/my_icon1.png",
+                  // iconUrl: "https://akidompro.pythonanywhere.com//static/img/icons/my_icon1.png",
                   shadowUrl: "https://unpkg.com/leaflet@1.6/dist/images/marker-shadow.png",
-                  // shadowUrl: "https://fpmpro.pythonanywhere.com/static/img/icons/my_icon1.png"
+                  // shadowUrl: "https://akidompro.pythonanywhere.com//static/img/icons/my_icon1.png"
                 });
                 Promise.all([
-                    fetch("https://fpmpro.pythonanywhere.com/api/v1/recherche_parcelles/"+response.code),
-                  //  fetch("https://fpmpro.pythonanywhere.com/api/parcelles?format=json")
+                    fetch("https://akidompro.pythonanywhere.com/api/v1/recherche_parcelles/"+response.code),
+                  //  fetch("https://akidompro.pythonanywhere.com//api/parcelles?format=json")
                   ]).then(async ([response1]) => {
                     const responseData1 = await response1.json();
                     //  const responseData2 = await response2.json();
@@ -100,7 +100,7 @@ function searchingParcelle(url) {
                                   <tr>
                                       <th scope="col"><b>SUIVIS</b></th>
                                       <td class="text-uppercase text-center">
-                                          <a class="btn btn-default " style="padding: 1px 8px 1px 8px;" href="#" title="voir" onclick="show_planting('https://fpmpro.pythonanywhere.com/show_planting/${code}')" ><i class="glyphicon glyphicon-eye-open"></i></a>
+                                          <a class="btn btn-default " style="padding: 1px 8px 1px 8px;" href="#" title="voir" onclick="show_planting('https://akidompro.pythonanywhere.com/show_planting/${code}')" ><i class="glyphicon glyphicon-eye-open"></i></a>
                                       </td>
                                   </tr>
                               </tbody>
