@@ -26,7 +26,7 @@ var shapeBf = L.geoJSON(shapebf, {
                     </tr>
                     <tr>
                     <th scope="col"><b>SUPERFICIE :</b></th>
-                    <td class="text-uppercase"><strong>${feature.properties.AREA}</strong></td>
+                    <td class="text-uppercase"><strong>${feature.properties.AREA} Ha</strong></td>
                 </tr>
                 </tbody>
         </table>
@@ -56,7 +56,7 @@ var shapeAdry = L.geoJSON(shapeadry, {
                     </tr>
                     <tr>
                     <th scope="col"><b>SUPERFICIE :</b></th>
-                    <td class="text-uppercase"><strong>${feature.properties.AREA}</strong></td>
+                    <td class="text-uppercase"><strong>${feature.properties.AREA} Ha</strong></td>
                 </tr>
                 </tbody>
         </table>
@@ -65,7 +65,7 @@ var shapeAdry = L.geoJSON(shapeadry, {
     style : {
         fillColor: 'grey',
         'fillOpacity': 0.1,
-        color:'red'
+        color:'blue'
     }
 });
 
