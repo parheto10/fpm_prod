@@ -112,7 +112,7 @@ def coop_dashboard(request):
 
     #petite_production = (Production.objects.filter(parcelle__producteur__cooperative_id=cooperative).filter(campagne="PETITE").aggregate(total=Sum('qteProduct'))['total']) / 1000
     #grande_production = (Production.objects.filter(parcelle__producteur__cooperative_id=cooperative).filter(campagne="GRANDE").aggregate(total=Sum('qteProduct'))['total']) / 1000
-    production_section = Production.objects.filter(parcelle__producteur__section_id=section)
+    #production_section = Production.objects.filter(parcelle__producteur__section_id=section)
     # plantings = DetailPlanting.objects.values("espece__libelle").filter(planting__parcelle__producteur__cooperative_id=cooperative).aggregate(total=Sum('nb_plante'))['total']
     # print(plantings)
     # espece_planting = DetailPlanting.objects.filter(espece__libelle__in=details_planting).aggregate(total=Sum('nb_plante'))['total']
