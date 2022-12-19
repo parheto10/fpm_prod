@@ -266,11 +266,11 @@
 
 {#        <script src="{% static 'js/index_parif.js' %}"></script>#}
             {% if not cluster %}
-            {% if user.id == 37 %}
-            <script src="{% static 'js/projectjs/agromap/index_planting_parif.js' %}"></script>
-            {% else %}
-            <script src="{% static 'js/index_planting_parif.js' %}"></script>
-            {% endif %}
+                {% if user.id == 37 %}
+                <script src="{% static 'js/projectjs/agromap/index_planting_parif.js' %}"></script>
+                {% else %}
+                <script src="{% static 'js/index_planting_parif.js' %}"></script>
+                {% endif %}
      
             {% else %}
             <script src="{% static 'js/index_planting_cluster.js' %}"></script>
