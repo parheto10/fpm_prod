@@ -45,6 +45,8 @@ class EspeceResource(resources.ModelResource):
 
 class EspeceAdmin(ImportExportModelAdmin):
     resource_class = EspeceResource
+    list_display = ['categorie', 'accronyme', 'libelle', 'densite']
+    list_editable = ['libelle', 'densite']
 
 class PepiniereAdmin(ImportExportModelAdmin):
    inlines = [DetailsSemencePepiniereAdmin]
