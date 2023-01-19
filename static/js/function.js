@@ -601,3 +601,60 @@ function show_form(url) {
     });
 }
 
+
+/////Import fichier excel function /////////////
+
+function validateImportProd(url) {
+    event.preventDefault();
+        swal({
+				title: "Confirmer l'importation de cet fichier ",
+				icon: "info",
+				buttons: true,
+				dangerMode: false,
+			})
+				.then((willDelete) => {
+				if (willDelete) {
+					$.get(url , { });
+					swal("Fichier importé avec succes", {
+						icon: "success",
+					})
+                    .then((ok) => {
+                        if(ok) {
+                            window.location.href = 'http://127.0.0.1:8000/cooperatives/producteurs/';
+                        }
+                    });
+                    
+				} else {
+
+		}
+		});
+
+}
+
+function annuleImportProd(url) {
+    event.preventDefault();
+        swal({
+				title: "Confirmer l'annulation de cet fichier ",
+				icon: "info",
+				buttons: true,
+				dangerMode: false,
+			})
+				.then((willDelete) => {
+				if (willDelete) {
+					$.get(url , { });
+					swal("importation annulée avec succes", {
+						icon: "success",
+					})
+                    .then((ok) => {
+                        if(ok) {
+                            window.location.href = 'http://127.0.0.1:8000/cooperatives/producteurs/';
+                        }
+                    });
+                    
+				} else {
+
+		}
+		});
+
+}
+

@@ -5,6 +5,7 @@ import os
 import re
 import sys
 import uuid
+import pandas as pd
 #from numpy import iterable
 #from pandas import notnull
 
@@ -35,6 +36,7 @@ from rest_framework.decorators import api_view
 from django.views import View
 from xhtml2pdf import pisa
 from xlrd.formatting import Format
+from django.core.files.storage import FileSystemStorage
 
 # Import django Serializer Features #
 from django.http import HttpResponse, JsonResponse
@@ -47,7 +49,7 @@ from parametres.serializers import DetailMonitoringSerializer, DetailsPlantingSe
 from .forms import CoopForm, EditProductionForm, MonitoringEspeceForm, ParticipantcoopForm, ProdForm, EditProdForm, ParcelleForm, RemplacementMonitoringForm, SectionForm, Sous_SectionForm, \
      FormationForm, DetailFormation, EditFormationForm, EditParcelleForm, Edit_Sous_SectionForm, MonitoringForm, \
     PlantingForm, DetailPlantingForm, ProductionForm
-from .models import Cooperative, DetailMonitoring, DetailPlantingRemplacement, MonitoringEspece, \
+from .models import Cooperative, DetailMonitoring, DetailPlantingRemplacement, ImportProdFileModel, MonitoringEspece, \
     MonitoringEspeceremplacement,MonitoringObsMobile, Participantcoop, Participantformation, RemplacementMonitoring, Section, Sous_Section, \
     Producteur, Parcelle, Planting, Formation, Detail_Formation, \
     DetailPlanting, Monitoring, Production, SyncHistorique
@@ -306,6 +308,12 @@ def producteurs(request):
 def prod_delete(request, code=None):
     item = get_object_or_404(Producteur, code=code)
     item.delete()
+    try :
+        importProd = get_object_or_404(ImportProdFileModel, code = code)
+        importProd.delete()
+    except ImportProdFileModel.DoesNotExist :
+        pass
+    
 
 
 @login_required(login_url='connexion')
@@ -550,7 +558,7 @@ def export_section_xls(request):
     font_style = xlwt.XFStyle()
     font_style.font.bold = True
 
-    columns = ['LIBELLE', 'RESPONSABLE', 'CONTACTS']
+    columns = ['ID','LIBELLE', 'RESPONSABLE', 'CONTACTS']
 
     for col_num in range(len(columns)):
         ws.write(row_num, col_num, columns[col_num], font_style)
@@ -559,6 +567,7 @@ def export_section_xls(request):
     font_style = xlwt.XFStyle()
     cooperative = Cooperative.objects.get(utilisateur=request.user.utilisateur)
     rows = Section.objects.all().filter(cooperative_id=cooperative.id).values_list(
+        'id',
         'libelle',
         'responsable',
         'contacts',
@@ -2968,3 +2977,209 @@ def consult_histo(request):
 
     templateStr = render_to_string("historique/consult_view.html", context)
     return JsonResponse({'templateStr':templateStr,'date':date,'id':id},safe=False)
+
+
+@login_required(login_url='connexion')
+def saveProdFile(request):
+    role = Role.objects.get(id = request.user.utilisateur.role_id)
+    cooperative = Cooperative.objects.get(utilisateur=request.user.utilisateur)
+    if request.method == "POST" and request.FILES['prodFile'] : 
+        prodFile = request.FILES['prodFile']
+        
+        if not prodFile.name.endswith('xlsx') |  prodFile.name.endswith('xls') | prodFile.name.endswith('csv') | prodFile.name.endswith('ods')  : 
+            messages.info(request, 'mauvais format')
+            return redirect('cooperatives:producteurs')
+        else :
+            fs = FileSystemStorage()
+            filename = fs.save(prodFile.name, prodFile)
+            upload_url = fs.url(filename)
+            exceldata = pd.read_excel(filename)
+            
+            if set(['code','nom','localite','section','nb_parcelle','genre','date_naissance','contact']).issubset(exceldata.columns) :
+                
+                for db in exceldata.itertuples() : 
+                    if exceldata.isnull().values.any() != True  :
+                            if len(ImportProdFileModel.objects.filter(code = db.code).filter(cooperative_id = cooperative.id)) == 0 :
+                                if len(Producteur.objects.filter(code=db.code)) == 0 :
+                                    objdata = ImportProdFileModel.objects.create(
+                                        code = db.code.upper(),
+                                        nom = db.nom.upper(),
+                                        localite = db.localite,
+                                        section_id = int(db.section),
+                                        nb_parcelle = db.nb_parcelle,
+                                        genre = db.genre,
+                                        dob = db.date_naissance,
+                                        contacts = db.contact,
+                                        user_id = request.user.utilisateur.id,
+                                        cooperative_id = cooperative.id,
+                                    )
+                                else :
+                                     producteur = get_object_or_404(Producteur,code = db.code)
+                                     objdata = ImportProdFileModel.objects.create(
+                                        code = producteur.code,
+                                        nom = producteur.nom,
+                                        localite = producteur.localite,
+                                        section_id = producteur.section_id,
+                                        nb_parcelle = producteur.nb_parcelle,
+                                        genre = producteur.genre,
+                                        dob = producteur.dob,
+                                        contacts = producteur.contacts,
+                                        user_id = request.user.utilisateur.id,
+                                        cooperative_id = cooperative.id,
+                                        nom_prime = db.nom.upper(),
+                                        localite_prime=db.localite,
+                                        section_prime = db.section,
+                                        nb_parcelle_prime = db.nb_parcelle,
+                                        genre_prime = db.genre,
+                                        dob_prime = db.date_naissance,
+                                        contacts_prime = db.contact,
+                                        user_id_prime = request.user.utilisateur.id,
+                                        cooperative_prime= cooperative.id
+                                    )
+                            
+                            elif len(ImportProdFileModel.objects.filter(code = db.code).filter(cooperative_id = cooperative.id).filter(etatValidate = "EN ATTENTE")) >0 :
+                                prod = get_object_or_404(ImportProdFileModel,code = db.code)
+                                prod.nom_prime = db.nom.upper()
+                                prod.localite_prime=db.localite
+                                prod.section_prime = db.section
+                                prod.nb_parcelle_prime = db.nb_parcelle
+                                prod.genre_prime = db.genre
+                                prod.dob_prime = db.date_naissance
+                                prod.contacts_prime = db.contact
+                                prod.etatValidate = "EN ATTENTE"
+                                prod.user_id_prime = request.user.utilisateur.id
+                                prod.cooperative_prime= cooperative.id
+                                
+                                
+                                prod.save()
+                            elif len(ImportProdFileModel.objects.filter(code = db.code).filter(cooperative_id = cooperative.id).filter(etatValidate = "ANNULER")) > 0 or len(ImportProdFileModel.objects.filter(code = db.code).filter(cooperative_id = cooperative.id).filter(etatValidate = "IMPORTER")) > 0 :
+                                if len(Producteur.objects.filter(code=db.code)) > 0 :
+                                    prod = get_object_or_404(ImportProdFileModel,code = db.code)
+                                    prod.nom_prime = db.nom.upper()
+                                    prod.localite_prime=db.localite
+                                    prod.section_prime = db.section
+                                    prod.nb_parcelle_prime = db.nb_parcelle
+                                    prod.genre_prime = db.genre
+                                    prod.dob_prime = db.date_naissance
+                                    prod.contacts_prime = db.contact
+                                    prod.etatValidate = "EN ATTENTE"
+                                    prod.user_id_prime = request.user.utilisateur.id
+                                    prod.cooperative_prime= cooperative.id
+                                    prod.save()
+                                else :
+                                    prod = get_object_or_404(ImportProdFileModel,code = db.code)
+                                    prod.delete()
+                                    objdata = ImportProdFileModel.objects.create(
+                                        code = db.code.upper(),
+                                        nom = db.nom.upper(),
+                                        localite = db.localite,
+                                        section_id = int(db.section),
+                                        nb_parcelle = db.nb_parcelle,
+                                        genre = db.genre,
+                                        dob = db.date_naissance,
+                                        contacts = db.contact,
+                                        user_id = request.user.utilisateur.id,
+                                        cooperative_id = cooperative.id,
+                                    )
+                        
+                     
+                    else :
+                         messages.info(request, 'Erreur les columns [code,nom,section,cooperative]  ont une ou plusieurs cases vide')
+                         return redirect('cooperatives:producteurs')
+            else : 
+                messages.info(request, 'Erreur dans sur les columns de votre fichier [code,nom,localite,section,cooperative,nb_parcelle,genre,date_naissance,contact]')
+                return redirect('cooperatives:producteurs')
+                        
+
+        listProd = ImportProdFileModel.objects.filter(etatValidate = "EN ATTENTE").filter(cooperative_id = cooperative.id)
+        #filename = fs.save(prodFile.name, prodFile)
+        filedel = fs.delete(prodFile.name)
+
+        context = {
+            'cooperative': cooperative,
+            'role':role,
+            'listProd':listProd
+        }
+        return render(request, 'historique/test.html',context)
+    
+@api_view(['GET'])
+def importValidProd(request):
+    cooperative = Cooperative.objects.get(utilisateur=request.user.utilisateur)
+    ficherAimporter = ImportProdFileModel.objects.filter(etatValidate = "EN ATTENTE").filter(cooperative_id = cooperative.id)
+
+    for fichierprod in ficherAimporter:
+        
+        if fichierprod.nom_prime is not None :
+            if len(Producteur.objects.filter(code=fichierprod.code)) == 0 :
+                prod = Producteur.objects.create(
+                    code = fichierprod.code,
+                    cooperative_id = fichierprod.cooperative_prime,
+                    origine_id = 1,
+                    sous_prefecture_id = 1,
+                    nom = fichierprod.nom_prime,
+                    dob  = fichierprod.dob_prime,
+                    genre = fichierprod.genre_prime,
+                    contacts = fichierprod.contacts_prime,
+                    localite = fichierprod.localite_prime,
+                    section_id = fichierprod.section_prime,
+                    nb_parcelle = fichierprod.nb_parcelle_prime,
+                    user_id = fichierprod.user_id_prime
+                )
+            else:
+                producteur =get_object_or_404(Producteur, code=fichierprod.code)
+                producteur.cooperative_id = fichierprod.cooperative_prime
+                producteur.nom = fichierprod.nom_prime
+                producteur.dob  = fichierprod.dob_prime
+                producteur.genre = fichierprod.genre_prime
+                producteur.contacts = fichierprod.contacts_prime
+                producteur.localite = fichierprod.localite_prime
+                producteur.section_id = int(fichierprod.section_prime)
+                producteur.nb_parcelle = fichierprod.nb_parcelle_prime
+                producteur.user_id = fichierprod.user_id_prime
+                
+                producteur.save()
+                
+        else :
+            if len(Producteur.objects.filter(code=fichierprod.code)) == 0 :
+                prod = Producteur.objects.create(
+                        code = fichierprod.code,
+                        cooperative_id = fichierprod.cooperative_id,
+                        origine_id = 1,
+                        sous_prefecture_id = 1,
+                        nom = fichierprod.nom,
+                        dob  = fichierprod.dob,
+                        genre = fichierprod.genre,
+                        contacts = fichierprod.contacts,
+                        localite = fichierprod.localite,
+                        section_id = fichierprod.section_id,
+                        nb_parcelle = fichierprod.nb_parcelle,
+                        user_id = fichierprod.user_id
+                    )
+            else :
+                producteur =get_object_or_404(Producteur, code=fichierprod.code)
+                producteur.cooperative_id = fichierprod.cooperative_id
+                producteur.nom = fichierprod.nom
+                producteur.dob  = fichierprod.dob
+                producteur.genre = fichierprod.genre
+                producteur.contacts = fichierprod.contacts
+                producteur.localite = fichierprod.localite
+                producteur.section_id = int(fichierprod.section_id)
+                producteur.nb_parcelle = fichierprod.nb_parcelle
+                producteur.user_id = fichierprod.user_id
+                
+                producteur.save()
+        
+        fichierprod.etatValidate = "IMPORTER"
+        fichierprod.save()
+                  
+    #return redirect('cooperatives:producteurs')
+            
+        
+@api_view(['GET'])
+def importAnnuleProd(request):
+    cooperative = Cooperative.objects.get(utilisateur=request.user.utilisateur)
+    ficherAimporter = ImportProdFileModel.objects.filter(etatValidate = "EN ATTENTE").filter(cooperative_id = cooperative.id)
+    
+    for fichierprod in ficherAimporter :
+        fichierprod.etatValidate = "ANNULER"
+        fichierprod.save()

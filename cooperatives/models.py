@@ -159,7 +159,7 @@ class Sous_Section(models.Model):
         verbose_name = "sous section"
         ordering = ["libelle"]
 
-class Producteur(models.Model):
+class Producteur(models.Model): 
     code = models.CharField(max_length=150,  verbose_name='CODE PRODUCTEUR',unique=True,primary_key=True,null=False,editable=True)
     cooperative = models.ForeignKey(Cooperative, on_delete=models.CASCADE, related_name='producteurs')
     origine = models.ForeignKey(Origine, on_delete=models.CASCADE, related_name='producteurs', default=1)
@@ -559,3 +559,29 @@ class MonitoringObsMobile(models.Model):
     synchro = models.CharField(max_length=10, default='OUI')
     created_at = models.DateTimeField(auto_now_add = True)
     updated_at = models.DateTimeField(auto_now = True)
+
+
+class ImportProdFileModel(models.Model):
+    code = models.CharField(max_length=150,  verbose_name='CODE PRODUCTEUR',unique=True,primary_key=True,null=False,editable=True)
+    nom = models.CharField(max_length=250,  verbose_name="Nom et prénoms")
+    localite = models.CharField(max_length=100, blank=True, null=True)
+    section = models.ForeignKey(Section, on_delete=models.SET_NULL,null=True)
+    nb_parcelle = models.PositiveIntegerField(default=0)
+    genre = models.CharField(max_length=2, choices=GENRE, default="H",blank=True, null=True)
+    dob = models.DateField(blank=True, null=True, verbose_name="Date/Année de Naissance")
+    contacts = models.CharField(max_length=50, blank=True, null=True)
+    cooperative = models.ForeignKey(Cooperative, on_delete=models.CASCADE)
+    user_id = models.IntegerField(null=True,blank=True)
+    nom_prime = models.CharField(max_length=250,  verbose_name="Nom et prénoms",null=True,blank=True)
+    localite_prime = models.CharField(max_length=100, blank=True, null=True)
+    section_prime = models.IntegerField(null=True,blank=True)
+    nb_parcelle_prime = models.PositiveIntegerField(null=True,blank=True)
+    genre_prime = models.CharField(max_length=2,null=True,blank=True)
+    dob_prime = models.DateField(blank=True, null=True, verbose_name="Date/Année de Naissance")
+    contacts_prime = models.CharField(max_length=50, blank=True, null=True)
+    cooperative_prime = models.IntegerField(null=True,blank=True)
+    user_id_prime = models.IntegerField(null=True,blank=True)
+    etatValidate = models.CharField(max_length=50,default="EN ATTENTE", blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add = True)
+    updated_at = models.DateTimeField(auto_now = True)
+    
