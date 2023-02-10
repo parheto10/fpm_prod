@@ -261,26 +261,14 @@ def producteurs(request):
     activate = "producteurs"
     role = Role.objects.get(id = request.user.utilisateur.role_id)
     cooperative = Cooperative.objects.get(utilisateur=request.user.utilisateur)
-    producteurs = Producteur.objects.filter(cooperative_id=cooperative)#.order_by("-add_le")
+    # producteurs = Producteur.objects.filter(cooperative_id=cooperative)#.order_by("-add_le")
     sections = Section.objects.filter(id= 44) | Section.objects.filter(cooperative_id = cooperative)
     sous_sections = Sous_Section.objects.all().filter(section__cooperative_id=cooperative)
 
     prodForm = ProdForm()
-   # if request.method == 'POST':
-   #     prodForm = ProdForm(request.POST, request.FILES)
-   #
-   #     if prodForm.is_valid():
-   #         producteur = prodForm.save(commit=False)
-   #         producteur.cooperative_id = cooperative.id
-   #
-   #         producteur = producteur.save()
-   #         # print(producteur)
-   #         messages.success(request, "Producteur Ajouté avec succès")
-   #         return HttpResponseRedirect(reverse('cooperatives:producteurs'))
-
     context = {
         "cooperative":cooperative,
-        "producteurs": producteurs,
+        # "producteurs": producteurs,
         'prodForm': prodForm,
         'sections':sections,
         'sous_sections':sous_sections,
@@ -289,21 +277,6 @@ def producteurs(request):
 
     }
     return render(request, "cooperatives/producteurs.html", context)
-
-#def prod_update(request, code=None):
-#	instance = get_object_or_404(Producteur, code=code)
-#	form = EditProdForm(request.POST or None, request.FILES or None, instance=instance)
-#	if form.is_valid():
-#		instance = form.save(commit=False)
-#		instance.save()
-#		messages.success(request, "Producteur Modifié Avec Succès", extra_tags='html_safe')
-#		return HttpResponseRedirect(reverse('cooperatives:producteurs'))
-#
-#	context = {
-#		"instance": instance,
-#		"form":form,
-#	}
-#	return render(request, "cooperatives/prod_edt.html", context)
 
 
 def prod_delete(request, code=None):
@@ -324,28 +297,12 @@ def parcelles(request):
     cooperative = Cooperative.objects.get(utilisateur=request.user.utilisateur)
     prods = Producteur.objects.filter(cooperative_id=cooperative)
     s_sections = Sous_Section.objects.all().filter(section__cooperative_id=cooperative)
-    parcelles = Parcelle.objects.all().filter(producteur__cooperative_id=cooperative)
+    # parcelles = Parcelle.objects.all().filter(producteur__cooperative_id=cooperative)
     parcelleForm = ParcelleForm(request.POST or None)
-    if request.method == 'POST':
-        parcelleForm = ParcelleForm(request.POST, request.FILES)
-        if parcelleForm.is_valid():
-            parcelle = parcelleForm.save(commit=False)
-            for prod in prods:
-                parcelle.producteur_id = prod.id
-                if not parcelle.code:
-                    tot = Parcelle.objects.filter(producteur_id=prod).count()
-                    parcelle.code = "%s-%s" % (parcelle.producteur.code, tot)
-
-            for sect in s_sections:
-                parcelle.sous_section_id = sect.id
-
-            parcelle = parcelle.save()
-        messages.success(request, "Parcelle Ajoutés avec succès")
-        return HttpResponseRedirect(reverse('cooperatives:parcelles'))
 
     context = {
         "cooperative":cooperative,
-        "parcelles": parcelles,
+        # "parcelles": parcelles,
         'parcelleForm': parcelleForm,
         'producteurs': prods,
         's_sections': s_sections,
@@ -1095,15 +1052,15 @@ def CoopPlantings(request):
     # especes = Espece.objects.all()
     campagnes = Campagne.objects.all()
     projets = Projet.objects.all()
-    plantings = Planting.objects.filter(parcelle__producteur__cooperative_id=cooperative)
+    # plantings = Planting.objects.filter(parcelle__producteur__cooperative_id=cooperative)
 
-    for plant in plantings :
-        plant.nbplant = DetailPlanting.objects.filter(planting_id = plant.code).aggregate(total=Sum('nb_plante'))['total']
-        if plant.nbplant is not None:
-            plant.totale = plant.nbplant + plant.nb_plant_exitant
-        else:
-            plant.total = plant.nb_plant_exitant
-            plant.nbplant = 0
+    # for plant in plantings :
+    #     plant.nbplant = DetailPlanting.objects.filter(planting_id = plant.code).aggregate(total=Sum('nb_plante'))['total']
+    #     if plant.nbplant is not None:
+    #         plant.totale = plant.nbplant + plant.nb_plant_exitant
+    #     else:
+    #         plant.total = plant.nb_plant_exitant
+    #         plant.nbplant = 0
 
     plantingForm = PlantingForm()
 
@@ -1111,7 +1068,7 @@ def CoopPlantings(request):
     context = {
         'cooperative':cooperative,
         'parcelles':parcelles,
-        'plantings':plantings,
+        # 'plantings':plantings,
         'campagnes':campagnes,
         'projets':projets,
         'especes': especes,

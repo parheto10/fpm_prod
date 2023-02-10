@@ -27,6 +27,7 @@ from django.template.loader import render_to_string
 # from twisted.words.protocols.jabber.jstrports import client
 #from xhtml2pdf import pisa
 from xhtml2pdf import pisa
+from django.db.models import Q
 
 from parametres.forms import PepiniereForm
 from .models import Client
@@ -98,7 +99,7 @@ def client_index(request):
 
 
 
-
+ 
     if len(cooperatives) > 1 :
         for coop in cooperatives:
             coop.parcelles =  Parcelle.objects.filter(producteur__cooperative=coop).count()
@@ -724,42 +725,10 @@ def export_formation_to_pdf(request, id=None):
 
 def producteur(request):
     cooperatives = Cooperative.objects.filter(utilisateur = request.user.utilisateur)
-    prods= Producteur.objects.all()
-    producteurs = []
-    for product in prods :
-        for cooperative in cooperatives :
-            if product.cooperative_id == cooperative.id :
-                producteurs.append(product)
-
-
-
-    for prod in producteurs:
-         prod.superficies = Parcelle.objects.filter(producteur=prod).aggregate(total=Sum('superficie'))['total']
-
-
-    ctx = {
-        'producteurs' : producteurs
-    }
-    return render(request, 'clients/producteurs.html', ctx)
+    return render(request, 'clients/producteurs.html')
 
 def parcelle(request):
-    cooperatives = Cooperative.objects.filter(utilisateur = request.user.utilisateur)
-    parcelles = []
-    for cooperative in cooperatives :
-        parcs = Parcelle.objects.filter(producteur__cooperative_id = cooperative)
-        for pa in parcs :
-            if pa.producteur.cooperative_id == cooperative.id :
-                parcelles.append(pa)
-
-
-    for p in parcelles:
-        p.plants_recus = Planting.objects.filter(parcelle=p).aggregate(total=Sum('plant_recus'))['total']
-        p.plants_plante = DetailPlanting.objects.filter(planting__parcelle=p).aggregate(total=Sum('nb_plante'))['total']
-
-    ctx = {
-        'parcelles' : parcelles
-    }
-    return render(request, 'clients/parcelles.html', ctx)
+    return render(request, 'clients/parcelles.html')
 
 def production(request):
     cooperatives = Cooperative.objects.filter(utilisateur = request.user.utilisateur)
@@ -1155,3 +1124,298 @@ def noClusterCarte(request):
         "cluster":cluster
     }
     return render(request, 'carte.html', context)
+
+
+    # prods= Producteur.objects.all()
+    # producteurs = []
+    # for product in prods :
+    #     for cooperative in cooperatives :
+    #         if product.cooperative_id == cooperative.id :
+    #             producteurs.append(product)
+
+
+
+    # for prod in producteurs:
+    #      prod.superficies = Parcelle.objects.filter(producteur=prod).aggregate(total=Sum('superficie'))['total']
+
+
+    # ctx = {
+        # 'producteurs' : producteurs
+    # }
+    
+@api_view(['POST'])
+def prodClientTableFunction(request):
+    draw = request.POST['draw']
+    row = request.POST['start']
+    rowperpage = request.POST['length']
+    columIndex = request.POST['order[0][column]']
+    columnName = request.POST['columns['+columIndex+'][data]']
+    columnSortOrder = request.POST['order[0][dir]']
+    searchValue = request.POST['search[value]']
+    
+    cooperative = Cooperative.objects.filter(utilisateur=request.user.utilisateur)
+    arrayProd = []
+    # producteurs = []
+    
+    prodLong = Producteur.objects.filter(cooperative_id__in = cooperative).distinct()
+    recherche = Producteur.objects.filter(Q(cooperative_id__in = cooperative) &  Q(code__contains = searchValue) 
+                                               | Q(cooperative__sigle__contains = searchValue) 
+                                               | Q(section__libelle__contains = searchValue)
+                                               | Q(nom__contains = searchValue)
+                                               | Q(localite__contains = searchValue)
+                                               | Q(contacts__contains = searchValue)
+                                               ).distinct()
+    
+    if searchValue == "":
+        producteurs= Producteur.objects.filter(cooperative_id__in = cooperative).distinct().order_by("-created_at")[int(row):int(row)+int(rowperpage)]
+        for prod in producteurs :
+            superficies = Parcelle.objects.filter(producteur=prod).aggregate(total=Sum('superficie'))['total']
+            
+            if superficies:
+                superficies = "{:.2f}".format(superficies)
+            else:
+                superficies = "{:.2f}".format(0)
+                
+                
+            item = {
+               "code": prod.code,
+               "cooperative": prod.cooperative.sigle,
+               "section": prod.section.libelle,
+               "nom": prod.nom,
+               "localite":prod.localite,
+               "contact": prod.contacts,
+               "nbre_parcelle": prod.nb_parcelle,
+               "superficie": superficies
+            }
+            
+            arrayProd.append(item)
+            
+    else:
+        producteurs= Producteur.objects.filter(Q(cooperative_id__in = cooperative) &  Q(code__contains = searchValue) 
+                                               | Q(cooperative__sigle__contains = searchValue) 
+                                               | Q(section__libelle__contains = searchValue)
+                                               | Q(nom__contains = searchValue)
+                                               | Q(localite__contains = searchValue)
+                                               | Q(contacts__contains = searchValue)
+                                               ).distinct().order_by("-created_at")[int(row):int(row)+int(rowperpage)]
+        for prod in producteurs :
+            superficies = Parcelle.objects.filter(producteur=prod).aggregate(total=Sum('superficie'))['total']
+            
+            if superficies:
+                superficies = "{:.2f}".format(superficies)
+            else:
+                superficies = "{:.2f}".format(0)
+                
+                
+            item = {
+               "code": prod.code,
+               "cooperative": prod.cooperative.sigle,
+               "section": prod.section.libelle,
+               "nom": prod.nom,
+               "localite":prod.localite,
+               "contact": prod.contacts,
+               "nbre_parcelle": prod.nb_parcelle,
+               "superficie": superficies
+            }
+            
+            arrayProd.append(item)
+            
+            
+            
+    return JsonResponse({
+        'draw':int(draw),
+        'recordsTotal' : len(prodLong),
+        'recordsFiltered':len(recherche),
+        'aaData': arrayProd,
+        },safe=True)
+    
+
+@api_view(['POST'])
+def parcClientTableFunction(request):
+    draw = request.POST['draw']
+    row = request.POST['start']
+    rowperpage = request.POST['length']
+    columIndex = request.POST['order[0][column]']
+    columnName = request.POST['columns['+columIndex+'][data]']
+    columnSortOrder = request.POST['order[0][dir]']
+    searchValue = request.POST['search[value]']
+    
+    cooperative = Cooperative.objects.filter(utilisateur=request.user.utilisateur)
+    arrayParc = []
+    
+    parcLong = Parcelle.objects.filter(producteur__cooperative_id__in=cooperative)
+    recherche = Parcelle.objects.filter(Q(producteur__cooperative_id__in = cooperative ) & Q(code__contains = searchValue)
+                                            | Q(type_parcelle__contains=searchValue)
+                                            | Q(producteur__nom__contains = searchValue)
+                                            | Q(producteur__cooperative__sigle__contains = searchValue)
+                                            | Q(producteur__section__libelle__contains = searchValue)
+                                            | Q(code__contains = searchValue)
+                                            | Q(code_certificat__contains = searchValue)
+                                            | Q(producteur__localite__contains = searchValue)
+                                            | Q(longitude__contains= searchValue)
+                                            | Q(latitude__contains = searchValue)
+                                            | Q(superficie__contains = searchValue)
+                                            )
+    
+    if searchValue == "":
+        parcelles = Parcelle.objects.filter(producteur__cooperative_id__in=cooperative).distinct().order_by("-created_at")[int(row):int(row)+int(rowperpage)]
+        for parc in parcelles :
+            recus = Planting.objects.filter(parcelle=parc).aggregate(total=Sum('plant_recus'))['total']
+            plante = DetailPlanting.objects.filter(planting__parcelle=parc).aggregate(total=Sum('nb_plante'))['total']
+            
+            item = {
+                "type" : parc.type_parcelle,
+                "cooperative": parc.producteur.cooperative.sigle,
+                "section": parc.producteur.section.libelle,
+                "producteur": parc.producteur.nom,
+                "code": parc.code,
+                "code_certificat": parc.code_certificat,
+                "localite": parc.producteur.localite,
+                "coordonnee": '<span class="text-center"> "{0}","{1}" </span>'.format(parc.longitude,parc.latitude),
+                "superficie": parc.superficie,
+                "recus":recus,
+                "plante": plante
+            }
+            
+            arrayParc.append(item)
+    else:
+        parcelles = Parcelle.objects.filter(Q(producteur__cooperative_id__in = cooperative ) & Q(code__contains = searchValue)
+                                            | Q(type_parcelle__contains=searchValue)
+                                            | Q(producteur__cooperative__sigle__contains = searchValue)
+                                            | Q(producteur__section__libelle__contains = searchValue)
+                                            | Q(producteur__nom__contains = searchValue)
+                                            | Q(code__contains = searchValue)
+                                            | Q(code_certificat__contains = searchValue)
+                                            | Q(producteur__localite__contains = searchValue)
+                                            | Q(longitude__contains= searchValue)
+                                            | Q(latitude__contains = searchValue)
+                                            | Q(superficie__contains = searchValue)
+                                            ).distinct().order_by("-created_at")[int(row):int(row)+int(rowperpage)]
+        
+        for parc in parcelles :
+            recus = Planting.objects.filter(parcelle=parc).aggregate(total=Sum('plant_recus'))['total']
+            plante = DetailPlanting.objects.filter(planting__parcelle=parc).aggregate(total=Sum('nb_plante'))['total']
+            
+            item = {
+                "type" : parc.type_parcelle,
+                "cooperative": parc.producteur.cooperative.sigle,
+                "section": parc.producteur.section.libelle,
+                "producteur": parc.producteur.nom,
+                "code": parc.code,
+                "code_certificat": parc.code_certificat,
+                "localite": parc.producteur.localite,
+                "coordonnee": '<span class="text-center"> "{0}","{1}" </span>'.format(parc.longitude,parc.latitude),
+                "superficie": parc.superficie,
+                "recus":recus,
+                "plante": plante
+            }
+            
+            arrayParc.append(item)
+            
+            
+    return JsonResponse({
+        'draw':int(draw),
+        'recordsTotal' : len(parcLong),
+        'recordsFiltered':len(recherche),
+        'aaData': arrayParc,
+        },safe=False)
+        
+    
+
+
+@api_view(['POST'])
+def coopClientTableFunction(request):
+    draw = request.POST['draw']
+    row = request.POST['start']
+    rowperpage = request.POST['length']
+    columIndex = request.POST['order[0][column]']
+    columnName = request.POST['columns['+columIndex+'][data]']
+    columnSortOrder = request.POST['order[0][dir]']
+    searchValue = request.POST['search[value]']
+    
+    coopLong = Cooperative.objects.filter(utilisateur=request.user.utilisateur).distinct()
+    recherche = Cooperative.objects.filter(Q(utilisateur=request.user.utilisateur) & Q(region__libelle__contains = searchValue)
+                                                  | Q(sigle__contains = searchValue)
+                                                  | Q(siege__contains = searchValue)
+                                                  | Q(contacts__contains = searchValue)
+                                                  
+                                                  ).distinct()
+    
+    arrayCoop = []
+    
+    if searchValue == "" :
+        cooperatives = Cooperative.objects.filter(utilisateur=request.user.utilisateur).distinct().order_by("sigle")[int(row):int(row)+int(rowperpage)]
+        for coop in cooperatives :
+            nbreSection = Section.objects.filter(cooperative_id = coop.id).count()
+            nbreProd = Producteur.objects.filter(cooperative_id = coop.id).count()
+            nbreParc = Parcelle.objects.filter(producteur__cooperative_id = coop.id).count()
+            nbreSuperficie = Parcelle.objects.filter(producteur__cooperative_id=coop.id).aggregate(total=Sum('superficie'))[ 'total']
+            
+            if nbreSuperficie:
+                nbreSuperficie = "{:.2f}".format(nbreSuperficie)
+            else:
+                nbreSuperficie = "{:.2f}".format(0)
+            
+            item = {
+                "region": coop.region.libelle,
+                "sigle": coop.sigle,
+                "siege": coop.siege,
+                "contact" : coop.contacts,
+                "nbre_section": nbreSection,
+                "nbre_producteur":nbreProd,
+                "nbre_parcelle":nbreParc,
+                "superficie":nbreSuperficie,
+                "action": '<a href="{0}" class="btn btn-primary btn-xs">Accéder</a>'.format(
+                    reverse('clients:detail_coop', args=[coop.id])
+                )
+                
+            }
+            
+            arrayCoop.append(item)
+    else:
+        cooperatives = Cooperative.objects.filter(Q(utilisateur=request.user.utilisateur) & Q(region__libelle__contains = searchValue)
+                                                  | Q(sigle__contains = searchValue)
+                                                  | Q(siege__contains = searchValue)
+                                                  | Q(contacts__contains = searchValue)
+                                                  
+                                                  ).distinct().order_by("-sigle")[int(row):int(row)+int(rowperpage)]
+        
+        
+        for coop in cooperatives :
+            nbreSection = Section.objects.filter(cooperative_id = coop.id).count()
+            nbreProd = Producteur.objects.filter(cooperative_id = coop.id).count()
+            nbreParc = Parcelle.objects.filter(producteur__cooperative_id = coop.id).count()
+            nbreSuperficie = Parcelle.objects.filter(producteur__cooperative_id=coop.id).aggregate(total=Sum('superficie'))[ 'total']
+            
+            if nbreSuperficie:
+                nbreSuperficie = "{:.2f}".format(nbreSuperficie)
+            else:
+                nbreSuperficie = "{:.2f}".format(0)
+            
+            item = {
+                "region": coop.region.libelle,
+                "sigle": coop.sigle,
+                "siege": coop.siege,
+                "contact" : coop.contacts,
+                "nbre_section": nbreSection,
+                "nbre_producteur":nbreProd,
+                "nbre_parcelle":nbreParc,
+                "superficie":nbreSuperficie,
+                "action": '<a href="{0}" class="btn btn-primary btn-xs">Accéder</a>'.format(
+                    reverse('clients:detail_coop', args=[coop.id])
+                )
+                
+            }
+            
+            arrayCoop.append(item)
+        
+    return JsonResponse({
+        'draw':int(draw),
+        'recordsTotal' : len(coopLong),
+        'recordsFiltered':len(recherche),
+        'aaData': arrayCoop,
+        },safe=False)
+    
+    
+    
+    
