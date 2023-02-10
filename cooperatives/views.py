@@ -2980,6 +2980,9 @@ def consult_histo(request):
     return JsonResponse({'templateStr':templateStr,'date':date,'id':id},safe=False)
 
 
+
+###importation de ficher producteur
+
 @login_required(login_url='connexion')
 def saveProdFile(request):
     role = Role.objects.get(id = request.user.utilisateur.role_id)
@@ -3186,6 +3189,7 @@ def importAnnuleProd(request):
         fichierprod.save()
         
 
+### datatable ################################################################
 @api_view(['POST'])
 def prodTableFunction(request):
     draw = request.POST['draw']
@@ -3205,7 +3209,7 @@ def prodTableFunction(request):
     
     if searchValue == "":
         # producteurs = Producteur.objects.filter(cooperative_id=cooperative).order_by(columnName)[:int(row)].values()
-        producteurs = Producteur.objects.raw("SELECT * FROM cooperatives_producteur WHERE cooperative_id = "+str(cooperative.id)+" ORDER BY "+columnName+" "+columnSortOrder+" LIMIT "+row+","+rowperpage+" ")
+        producteurs = Producteur.objects.raw("SELECT * FROM cooperatives_producteur WHERE cooperative_id = "+str(cooperative.id)+" ORDER BY "+columnName+" desc LIMIT "+row+","+rowperpage+" ")
         for prod in producteurs :
            
             item = {
@@ -3224,7 +3228,7 @@ def prodTableFunction(request):
             arrayProd.append(item)
     else:
         like_string = "%" + searchValue + "%"
-        producteurs = Producteur.objects.raw("SELECT * FROM cooperatives_producteur WHERE cooperative_id = %s AND (code LIKE %s OR nom LIKE %s OR genre LIKE %s OR type_producteur LIKE %s OR section_id LIKE %s OR localite LIKE %s) ORDER BY " + columnName + " " + columnSortOrder + " LIMIT " + row + "," + rowperpage, [str(cooperative.id), like_string, like_string, like_string, like_string, like_string, like_string])
+        producteurs = Producteur.objects.raw("SELECT * FROM cooperatives_producteur WHERE cooperative_id = %s AND (code LIKE %s OR nom LIKE %s OR genre LIKE %s OR type_producteur LIKE %s OR section_id LIKE %s OR localite LIKE %s) ORDER BY " + columnName + " desc LIMIT " + row + "," + rowperpage, [str(cooperative.id), like_string, like_string, like_string, like_string, like_string, like_string])
 
         # producteurs = Producteur.objects.filter(cooperative_id=cooperative).filter(code__istartswith =searchValue).order_by(columnName)[int(row):int(rowperpage)].values()
         for prod in producteurs :
@@ -3276,7 +3280,7 @@ def parcTableFunction(request):
     
     if searchValue == "":
         
-        parcelles = Parcelle.objects.raw("SELECT * FROM cooperatives_parcelle as p INNER JOIN cooperatives_producteur as pr ON p.producteur_id = pr.code  WHERE pr.cooperative_id = "+str(cooperative.id)+" ORDER BY "+columnName+" "+columnSortOrder+" LIMIT "+row+","+rowperpage+" ")
+        parcelles = Parcelle.objects.raw("SELECT * FROM cooperatives_parcelle as p INNER JOIN cooperatives_producteur as pr ON p.producteur_id = pr.code  WHERE pr.cooperative_id = "+str(cooperative.id)+" ORDER BY "+columnName+" desc LIMIT "+row+","+rowperpage+" ")
         
         for par in parcelles :
             item = {
@@ -3287,11 +3291,16 @@ def parcTableFunction(request):
                 "superficie":par.superficie,
                 "longitude":par.longitude,
                 "latitude":par.latitude,
-                "action": '<a>bonus</a>'
+                "action": '<a href="#" onclick="edit_parcelle(\'{0}\')" style="padding: 3px;margin-top: 6px; margin-right:5px;" class="btn btn-primary"><i class="fa fa-edit fa-fw"></i></a><a href="#" onclick="delete_semence(\'{1}\')" style="padding: 3px;margin-top: 6px;" class="btn btn-danger"><i class="fa fa-trash fa-fw"></i></a>'.format(
+                    reverse('cooperatives:edit_parcelle', args=[par.code]),
+                    reverse('cooperatives:parcelle_delete', args=[par.code])
+                    )
             }
             arrayParc.append(item)
     else:
-        parcelles = Parcelle.objects.filter(Q(producteur__cooperative_id= cooperative.id, code__istartswith=searchValue) | Q(producteur__nom__istartswith = searchValue)  | Q(culture__istartswith = searchValue) | Q(superficie__istartswith = searchValue) | Q(longitude__istartswith = searchValue)| Q(latitude__istartswith = searchValue)).order_by(columnName)[:int(rowperpage)]
+        like_string = "%" + searchValue + "%"
+        parcelles = Parcelle.objects.raw("SELECT * FROM cooperatives_parcelle as p INNER JOIN cooperatives_producteur as pr ON p.producteur_id = pr.code INNER JOIN cooperatives_section as s ON pr.section_id = s.id  WHERE pr.cooperative_id = "+str(cooperative.id)+" AND (p.code LIKE %s OR pr.nom LIKE %s OR s.libelle LIKE %s OR p.culture LIKE %s OR p.superficie LIKE %s OR p.longitude LIKE %s OR p.latitude LIKE %s ) ORDER BY "+columnName+" desc LIMIT "+row+","+rowperpage,[like_string, like_string, like_string, like_string, like_string, like_string,like_string])
+        # parcelles = Parcelle.objects.filter(Q(producteur__cooperative_id= cooperative.id, code__istartswith=searchValue) | Q(producteur__nom__istartswith = searchValue)  | Q(culture__istartswith = searchValue) | Q(superficie__istartswith = searchValue) | Q(longitude__istartswith = searchValue)| Q(latitude__istartswith = searchValue)).order_by(columnName)[:int(rowperpage)]
         for par in parcelles :
             item = {
                 "code":par.code,
@@ -3301,7 +3310,10 @@ def parcTableFunction(request):
                 "superficie":par.superficie,
                 "longitude":par.longitude,
                 "latitude":par.latitude,
-                "action": '<a>bonus</a>'
+                "action": '<a href="#" onclick="edit_parcelle(\'{0}\')" style="padding: 3px;margin-top: 6px; margin-right:5px;" class="btn btn-primary"><i class="fa fa-edit fa-fw"></i></a><a href="#" onclick="delete_semence(\'{1}\')" style="padding: 3px;margin-top: 6px;" class="btn btn-danger"><i class="fa fa-trash fa-fw"></i></a>'.format(
+                    reverse('cooperatives:edit_parcelle', args=[par.code]),
+                    reverse('cooperatives:parcelle_delete', args=[par.code])
+                    )
             }
             arrayParc.append(item)
             
@@ -3313,3 +3325,73 @@ def parcTableFunction(request):
             'recordsFiltered':len(recherche),
             'aaData': arrayParc,
             },safe=False)
+    
+
+@api_view(['POST'])
+def plantTableFunction(request):
+    draw = request.POST['draw']
+    row = request.POST['start']
+    rowperpage = request.POST['length']
+    columIndex = request.POST['order[0][column]']
+    columnName = request.POST['columns['+columIndex+'][data]']
+    columnSortOrder = request.POST['order[0][dir]']
+    searchValue = request.POST['search[value]']
+    
+    cooperative = Cooperative.objects.get(utilisateur=request.user.utilisateur)
+    arrayPlant = []
+    
+    plantLong = Planting.objects.filter(parcelle__producteur__cooperative_id=cooperative)
+    recherche = Planting.objects.filter(parcelle__producteur__cooperative_id=cooperative).filter(parcelle__code__contains = searchValue) 
+
+    if searchValue == "":
+        plantings = Planting.objects.raw("SELECT * FROM cooperatives_planting as pl INNER JOIN cooperatives_parcelle as p ON pl.parcelle_id = p.code INNER JOIN cooperatives_producteur as pr ON p.producteur_id = pr.code  WHERE pr.cooperative_id = "+str(cooperative.id)+" ORDER BY pl.date desc LIMIT "+row+","+rowperpage+" ")
+        for plant in plantings :
+            nbplant = DetailPlanting.objects.filter(planting_id = plant.code).aggregate(total=Sum('nb_plante'))['total']
+            if nbplant is not None :
+                item = {
+                    "producteur" : plant.parcelle.producteur.nom,
+                    "parcelle" : plant.parcelle.code,
+                    "existant" : plant.nb_plant_exitant,
+                    "recus" : nbplant,
+                    "total" : nbplant + plant.nb_plant_exitant,
+                    "date" : plant.date,
+                    "action" : '<a href="{0}" class="btn btn-success">suivi <i class="fa fa-chevron-right"></i></a>'.format(
+                        reverse('cooperatives:suivi_planting', args=[plant.code]),
+                    )
+                    
+                }
+                
+                arrayPlant.append(item)
+                
+    else:
+        like_string = "%" + searchValue + "%"
+        plantings = Planting.objects.raw("SELECT * FROM cooperatives_planting as pl INNER JOIN cooperatives_parcelle as p ON pl.parcelle_id = p.code INNER JOIN cooperatives_producteur as pr ON p.producteur_id = pr.code WHERE pr.cooperative_id = "+str(cooperative.id)+" AND (p.code LIKE %s OR pr.nom LIKE %s OR pl.date LIKE %s  ) ORDER BY pl.date desc LIMIT "+row+","+rowperpage,[like_string, like_string, like_string])
+        for plant in plantings :
+            nbplant = DetailPlanting.objects.filter(planting_id = plant.code).aggregate(total=Sum('nb_plante'))['total']
+            if nbplant is not None :
+                item = {
+                    "producteur" : plant.parcelle.producteur.nom,
+                    "parcelle" : plant.parcelle.code,
+                    "existant" : plant.nb_plant_exitant,
+                    "recus" : nbplant,
+                    "total" : nbplant + plant.nb_plant_exitant,
+                    "date" : plant.date,
+                    "action" : '<a href="{0}" class="btn btn-success">suivi <i class="fa fa-chevron-right"></i></a>'.format(
+                        reverse('cooperatives:suivi_planting', args=[plant.code]),
+                    )
+                    
+                }
+                
+                arrayPlant.append(item)
+    
+                
+                
+    
+    return JsonResponse({
+            'draw':int(draw),
+            'recordsTotal' : len(plantLong),
+            'recordsFiltered':len(recherche),
+            'aaData': arrayPlant,
+            },safe=False)
+    
+                

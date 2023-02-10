@@ -92,6 +92,33 @@
     });
 
 
+    $(document).ready(function() {
+        $('#dataTables-planting').DataTable({
+           // 'processing': true,
+            'serverSide': true,
+            'ajax': {
+                'url':'{% url 'cooperatives:plantTable' %}',
+                'type': 'POST',
+                
+                
+            },
+            pageLength: 10,
+            'columns': [
+               // {data: 'image'},
+                {data: 'producteur'},
+                {data: 'parcelle'},
+                {data: 'existant'},
+                {data: 'recus'},
+                {data: 'total'},
+                {data: 'date'},
+                {data: 'action'},
+            ]
+
+        });
+    });
+
+
+
       	
 
        

@@ -46,6 +46,7 @@ from .views import (
     parcelle_update,
     parcelleSave,
     participant_delete,
+    plantTableFunction,
     plantingSave,
     prodTableFunction,
     producteurSave,
@@ -226,7 +227,8 @@ urlpatterns = [
     
     ###################################################################DATATABLE ##########
     path('prod_table/',prodTableFunction,name='prodTable'),
-    path('parc_table/',parcTableFunction,name='parcTable')
+    path('parc_table/',parcTableFunction,name='parcTable'),
+    path('plant_table/',plantTableFunction,name='plantTable')
     
 
 ]

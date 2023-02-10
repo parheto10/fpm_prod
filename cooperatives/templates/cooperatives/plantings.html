@@ -64,7 +64,7 @@
                             <!-- /.panel-heading -->
                             <div class="panel-body" style="font-size: 12px">
                                 <div class="table-responsive">
-                                    <table class="table table-striped table-bordered table-hover" id="dataTables-example">
+                                    <table class="table table-striped table-bordered table-hover" id="dataTables-planting">
                                         <thead>
                                             <tr>
                                                 <th>PRODUCTEUR</th>
@@ -76,7 +76,7 @@
                                                 <th>MONITORING</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
+                                        {% comment %} <tbody>
                                             {% for planting in plantings %}
                                                 <tr class="odd gradeX">
 {#                                                    <td class="center">{{ planting.parcelle.projet.titre }} - ({{ planting.parcelle.projet.accronyme }})</td>#}
@@ -95,7 +95,7 @@
                                                     </td>
                                                 </tr>
                                             {% endfor %}
-                                        </tbody>
+                                        </tbody> {% endcomment %}
                                     </table>
                                 </div>
                             </div>
