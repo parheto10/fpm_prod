@@ -38,6 +38,60 @@
         });
     });
 
+    // datatable avec ajax 
+    $(document).ready(function() {
+        $('#dataTables-producteur').DataTable({
+           // 'processing': true,
+            'serverSide': true,
+            'ajax': {
+                'url':'{% url 'cooperatives:prodTable' %}',
+                'type': 'POST',
+                
+                
+            },
+            pageLength: 10,
+            'columns': [
+               // {data: 'image'},
+                {data: 'code'},
+                {data: 'nom'},
+                {data: 'genre'},
+                {data: 'type_producteur'},
+                {data: 'section_libelle'},
+                {data: 'localite'},
+                {data: 'action'},
+            ]
+
+        });
+    });
+
+
+    $(document).ready(function() {
+        $('#dataTables-parcelle').DataTable({
+           // 'processing': true,
+            'serverSide': true,
+            'ajax': {
+                'url':'{% url 'cooperatives:parcTable' %}',
+                'type': 'POST',
+                
+                
+            },
+            pageLength: 10,
+            'columns': [
+               // {data: 'image'},
+                {data: 'code'},
+                {data: 'producteur'},
+                {data: 'section'},
+                {data: 'culture'},
+                {data: 'superficie'},
+                {data: 'longitude'},
+                {data: 'latitude'},
+                {data: 'action'},
+            ]
+
+        });
+    });
+
+
       	
 
        

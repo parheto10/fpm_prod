@@ -42,10 +42,12 @@ from .views import (
     monitoringCreate,
     monitoringSave,
     obsMonitoringFunc,
+    parcTableFunction,
     parcelle_update,
     parcelleSave,
     participant_delete,
     plantingSave,
+    prodTableFunction,
     producteurSave,
     producteurs,
     production,
@@ -220,6 +222,11 @@ urlpatterns = [
     ################################################## TEST ##############################
     path('saveProdFile/',saveProdFile,name='save_prod_file'),
     path('importValidProd/',importValidProd,name='importValidProd'),
-    path('importAnnuleProd/',importAnnuleProd,name='importAnnuleProd')
+    path('importAnnuleProd/',importAnnuleProd,name='importAnnuleProd'),
+    
+    ###################################################################DATATABLE ##########
+    path('prod_table/',prodTableFunction,name='prodTable'),
+    path('parc_table/',parcTableFunction,name='parcTable')
+    
 
 ]

@@ -423,6 +423,42 @@ class MonitoringObservationSerializer(serializers.ModelSerializer):
             'observation',
         )
         depth = 1
+        
+
+
+class ProducteurDataTableSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Producteur
+        fields = (
+            'code',
+            # 'origine',
+            # 'cooperative',
+            # 'sous_prefecture',
+            'type_producteur',
+            'nom',
+            # 'dob',
+            'genre',
+            # 'contacts',
+            'localite',
+            'section',
+            # 'sous_section',
+            # 'nb_parcelle',
+            'image',
+            # 'action',
+            # 'type_document',
+            # 'num_document',
+            # 'document',
+            # 'nb_enfant',
+            # 'nb_epouse',
+            # 'enfant_scolarise',
+            # 'nb_personne',
+            # 'user_id',
+            # 'created_at',
+            # 'updated_at'
+        )
+        depth = 1
+
 
 
 

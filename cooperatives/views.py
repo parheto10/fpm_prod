@@ -45,7 +45,7 @@ from rest_framework.parsers import JSONParser
 
 from parametres.forms import UserForm
 from parametres.models import Intitule_Formation, Projet, Espece, Campagne, Role, Utilisateur
-from parametres.serializers import DetailMonitoringSerializer, DetailsPlantingSerializer, MonitoringEspeceSerializer, MonitoringSerializer, ParcelleSerializer, PlantingSerializer, ProducteurSerializer
+from parametres.serializers import DetailMonitoringSerializer, DetailsPlantingSerializer, MonitoringEspeceSerializer, MonitoringSerializer, ParcelleSerializer, PlantingSerializer, ProducteurDataTableSerializer, ProducteurSerializer
 from .forms import CoopForm, EditProductionForm, MonitoringEspeceForm, ParticipantcoopForm, ProdForm, EditProdForm, ParcelleForm, RemplacementMonitoringForm, SectionForm, Sous_SectionForm, \
      FormationForm, DetailFormation, EditFormationForm, EditParcelleForm, Edit_Sous_SectionForm, MonitoringForm, \
     PlantingForm, DetailPlantingForm, ProductionForm
@@ -54,6 +54,7 @@ from .models import Cooperative, DetailMonitoring, DetailPlantingRemplacement, I
     Producteur, Parcelle, Planting, Formation, Detail_Formation, \
     DetailPlanting, Monitoring, Production, SyncHistorique
 from .serializers import CooperativeSerliazer, ParcelleSerliazer
+from django.db.models import Q
 
 
 def is_cooperative(user):
@@ -3183,3 +3184,132 @@ def importAnnuleProd(request):
     for fichierprod in ficherAimporter :
         fichierprod.etatValidate = "ANNULER"
         fichierprod.save()
+        
+
+@api_view(['POST'])
+def prodTableFunction(request):
+    draw = request.POST['draw']
+    row = request.POST['start']
+    rowperpage = request.POST['length']
+    columIndex = request.POST['order[0][column]']
+    columnName = request.POST['columns['+columIndex+'][data]']
+    columnSortOrder = request.POST['order[0][dir]']
+    searchValue = request.POST['search[value]']
+    
+    cooperative = Cooperative.objects.get(utilisateur=request.user.utilisateur)
+    arrayProd = []
+
+    #recherche = Producteur.objects.raw("SELECT count(*) as allcount FROM cooperatives_producteur WHERE code LIKE %s OR nom LIKE %s OR genre LIKE %s OR type_producteur LIKE %s OR section %s OR localite LIKE %s",(likeString,likeString,likeString,likeString,likeString,likeString))
+    prodLong = Producteur.objects.filter(cooperative_id=cooperative)
+    recherche = Producteur.objects.filter(cooperative_id=cooperative).filter(code__contains =searchValue).order_by(columnName)
+    
+    if searchValue == "":
+        # producteurs = Producteur.objects.filter(cooperative_id=cooperative).order_by(columnName)[:int(row)].values()
+        producteurs = Producteur.objects.raw("SELECT * FROM cooperatives_producteur WHERE cooperative_id = "+str(cooperative.id)+" ORDER BY "+columnName+" "+columnSortOrder+" LIMIT "+row+","+rowperpage+" ")
+        for prod in producteurs :
+           
+            item = {
+                # "image": prod.image.url,
+                "code":prod.code,
+                "nom":prod.nom,
+                "genre":prod.genre,
+                "type_producteur":prod.type_producteur,
+                "section_libelle":Section.objects.get(id= prod.section_id).libelle,
+                "localite":prod.localite,
+                "action": '<a href="#" onclick="edit_prod(\'{0}\')" style="padding: 3px;margin-top: 6px;margin-right:5px;" class="btn btn-primary"><i class="fa fa-edit fa-fw"></i></a><a href="#" onclick="delete_semence(\'{1}\')" style="padding: 3px;margin-top: 6px;" class="btn btn-danger"><i class="fa fa-trash fa-fw"></i></a>'.format(
+                        reverse('cooperatives:modifier', args=[prod.code]),
+                        reverse('cooperatives:del_producteur', args=[prod.code])
+                    )
+                }
+            arrayProd.append(item)
+    else:
+        like_string = "%" + searchValue + "%"
+        producteurs = Producteur.objects.raw("SELECT * FROM cooperatives_producteur WHERE cooperative_id = %s AND (code LIKE %s OR nom LIKE %s OR genre LIKE %s OR type_producteur LIKE %s OR section_id LIKE %s OR localite LIKE %s) ORDER BY " + columnName + " " + columnSortOrder + " LIMIT " + row + "," + rowperpage, [str(cooperative.id), like_string, like_string, like_string, like_string, like_string, like_string])
+
+        # producteurs = Producteur.objects.filter(cooperative_id=cooperative).filter(code__istartswith =searchValue).order_by(columnName)[int(row):int(rowperpage)].values()
+        for prod in producteurs :
+            item = {
+                # "image": prod.image.url,
+                "code":prod.code,
+                "nom":prod.nom,
+                "genre":prod.genre,
+                "type_producteur":prod.type_producteur,
+                "section_libelle":Section.objects.get(id= prod.section_id).libelle,
+                "localite":prod.localite,
+                "action": '<a href="#" onclick="edit_prod(\'{0}\')" style="padding: 3px;margin-top: 6px; margin-right:5px;" class="btn btn-primary"><i class="fa fa-edit fa-fw"></i></a><a href="#" onclick="delete_semence(\'{1}\')" style="padding: 3px;margin-top: 6px;" class="btn btn-danger"><i class="fa fa-trash fa-fw"></i></a>'.format(
+                    reverse('cooperatives:modifier', args=[prod.code]),
+                    reverse('cooperatives:del_producteur', args=[prod.code])
+                    )
+                 }
+            arrayProd.append(item)
+        
+    
+    return JsonResponse({
+            'draw':int(draw),
+            'recordsTotal' : len(prodLong),
+            'recordsFiltered':len(recherche),
+            'aaData': arrayProd,
+            },safe=False)
+    
+    
+
+        
+    
+    
+@api_view(['POST'])
+def parcTableFunction(request):
+    draw = request.POST['draw']
+    row = request.POST['start']
+    rowperpage = request.POST['length']
+    columIndex = request.POST['order[0][column]']
+    columnName = request.POST['columns['+columIndex+'][data]']
+    columnSortOrder = request.POST['order[0][dir]']
+    searchValue = request.POST['search[value]']
+    
+    cooperative = Cooperative.objects.get(utilisateur=request.user.utilisateur)
+    arrayParc = []
+    
+    
+    parcLong = Parcelle.objects.filter(producteur__cooperative_id=cooperative)
+    recherche = Parcelle.objects.filter(producteur__cooperative_id=cooperative).filter(code__contains =searchValue).order_by(columnName)
+    
+    
+    if searchValue == "":
+        
+        parcelles = Parcelle.objects.raw("SELECT * FROM cooperatives_parcelle as p INNER JOIN cooperatives_producteur as pr ON p.producteur_id = pr.code  WHERE pr.cooperative_id = "+str(cooperative.id)+" ORDER BY "+columnName+" "+columnSortOrder+" LIMIT "+row+","+rowperpage+" ")
+        
+        for par in parcelles :
+            item = {
+                "code":par.code,
+                "producteur":par.producteur.nom,
+                "section":par.producteur.section.libelle,
+                "culture":par.culture,
+                "superficie":par.superficie,
+                "longitude":par.longitude,
+                "latitude":par.latitude,
+                "action": '<a>bonus</a>'
+            }
+            arrayParc.append(item)
+    else:
+        parcelles = Parcelle.objects.filter(Q(producteur__cooperative_id= cooperative.id, code__istartswith=searchValue) | Q(producteur__nom__istartswith = searchValue)  | Q(culture__istartswith = searchValue) | Q(superficie__istartswith = searchValue) | Q(longitude__istartswith = searchValue)| Q(latitude__istartswith = searchValue)).order_by(columnName)[:int(rowperpage)]
+        for par in parcelles :
+            item = {
+                "code":par.code,
+                "producteur":par.producteur.nom,
+                "section":par.producteur.section.libelle,
+                "culture":par.culture,
+                "superficie":par.superficie,
+                "longitude":par.longitude,
+                "latitude":par.latitude,
+                "action": '<a>bonus</a>'
+            }
+            arrayParc.append(item)
+            
+    
+    
+    return JsonResponse({
+            'draw':int(draw),
+            'recordsTotal' : len(parcLong),
+            'recordsFiltered':len(recherche),
+            'aaData': arrayParc,
+            },safe=False)
