@@ -189,7 +189,7 @@
                                                     <th>ACTIONS</th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
+                                            {% comment %} <tbody>
                                                 {% for coop in cooperatives %}
                                                     <tr class="odd gradeX text-center">
                                                         <td>{{ coop.region }}</td>
@@ -207,7 +207,7 @@
                                                         <td class="center"><a href="{% url 'clients:detail_coop' coop.pk %}" class="btn btn-primary btn-xs">Accéder</a></td>
                                                     </tr>
                                                 {% endfor %}
-                                            </tbody>
+                                            </tbody> {% endcomment %}
                                         </table>
                                     </div>
                                 </div>
@@ -274,9 +274,9 @@
                                  <!-- /.panel-heading -->
                                 <div class="panel-body">
                                     {% if annee %}
-                                        <canvas id="stats-plantings" data-url="https://fpmpro.pythonanywhere.com/clients/DetailPlantingsbyYear/{{annee}}"></canvas>
+                                        <canvas id="stats-plantings" data-url="http://127.0.0.1:8000/clients/DetailPlantingsbyYear/{{annee}}"></canvas>
                                     {% else %}
-                                        <canvas id="stats-plantings" data-url="https://fpmpro.pythonanywhere.com/clients/DetailPlantingsbyNoyear"></canvas>
+                                        <canvas id="stats-plantings" data-url="http://127.0.0.1:8000/clients/DetailPlantingsbyNoyear"></canvas>
                                     {% endif %}
 
                                 </div>

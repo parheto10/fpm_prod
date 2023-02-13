@@ -3162,11 +3162,17 @@ def prodTableFunction(request):
 
     #recherche = Producteur.objects.raw("SELECT count(*) as allcount FROM cooperatives_producteur WHERE code LIKE %s OR nom LIKE %s OR genre LIKE %s OR type_producteur LIKE %s OR section %s OR localite LIKE %s",(likeString,likeString,likeString,likeString,likeString,likeString))
     prodLong = Producteur.objects.filter(cooperative_id=cooperative)
-    recherche = Producteur.objects.filter(cooperative_id=cooperative).filter(code__contains =searchValue).order_by(columnName)
+    recherche = Producteur.objects.filter(cooperative_id=cooperative).filter(Q(code__contains = searchValue)
+                                                                             |Q(nom__contains = searchValue)
+                                                                             |Q(genre__contains = searchValue)
+                                                                             |Q(type_producteur__contains = searchValue)
+                                                                             |Q(section__libelle__contains = searchValue)
+                                                                             |Q(localite__contains = searchValue)
+                                                                             )
     
     if searchValue == "":
         # producteurs = Producteur.objects.filter(cooperative_id=cooperative).order_by(columnName)[:int(row)].values()
-        producteurs = Producteur.objects.raw("SELECT * FROM cooperatives_producteur WHERE cooperative_id = "+str(cooperative.id)+" ORDER BY "+columnName+" desc LIMIT "+row+","+rowperpage+" ")
+        producteurs = Producteur.objects.filter(cooperative_id=cooperative).order_by("-created_at")[int(row):int(row)+int(rowperpage)]
         for prod in producteurs :
            
             item = {
@@ -3184,9 +3190,13 @@ def prodTableFunction(request):
                 }
             arrayProd.append(item)
     else:
-        like_string = "%" + searchValue + "%"
-        producteurs = Producteur.objects.raw("SELECT * FROM cooperatives_producteur WHERE cooperative_id = %s AND (code LIKE %s OR nom LIKE %s OR genre LIKE %s OR type_producteur LIKE %s OR section_id LIKE %s OR localite LIKE %s) ORDER BY " + columnName + " desc LIMIT " + row + "," + rowperpage, [str(cooperative.id), like_string, like_string, like_string, like_string, like_string, like_string])
-
+        producteurs = Producteur.objects.filter(cooperative_id=cooperative).filter(Q(code__contains = searchValue)
+                                                                             |Q(nom__contains = searchValue)
+                                                                             |Q(genre__contains = searchValue)
+                                                                             |Q(type_producteur__contains = searchValue)
+                                                                             |Q(section__libelle__contains = searchValue)
+                                                                             |Q(localite__contains = searchValue)
+                                                                             ).order_by("-created_at")[int(row):int(row)+int(rowperpage)]
         # producteurs = Producteur.objects.filter(cooperative_id=cooperative).filter(code__istartswith =searchValue).order_by(columnName)[int(row):int(rowperpage)].values()
         for prod in producteurs :
             item = {
@@ -3232,13 +3242,19 @@ def parcTableFunction(request):
     
     
     parcLong = Parcelle.objects.filter(producteur__cooperative_id=cooperative)
-    recherche = Parcelle.objects.filter(producteur__cooperative_id=cooperative).filter(code__contains =searchValue).order_by(columnName)
+    recherche = Parcelle.objects.filter(producteur__cooperative_id=cooperative).filter(Q(code__contains = searchValue)
+                                                                                       |Q(producteur__nom__contains = searchValue)
+                                                                                       |Q(producteur__section__libelle__contains = searchValue)
+                                                                                       |Q(culture__contains = searchValue)
+                                                                                       |Q(superficie__contains = searchValue)
+                                                                                       |Q(longitude__contains = searchValue)
+                                                                                       |Q(latitude__contains = searchValue)
+                                                                                       )
     
     
     if searchValue == "":
         
-        parcelles = Parcelle.objects.raw("SELECT * FROM cooperatives_parcelle as p INNER JOIN cooperatives_producteur as pr ON p.producteur_id = pr.code  WHERE pr.cooperative_id = "+str(cooperative.id)+" ORDER BY "+columnName+" desc LIMIT "+row+","+rowperpage+" ")
-        
+        parcelles = Parcelle.objects.filter(producteur__cooperative_id=cooperative).order_by('-created_at')[int(row):int(row)+int(rowperpage)]
         for par in parcelles :
             item = {
                 "code":par.code,
@@ -3255,8 +3271,14 @@ def parcTableFunction(request):
             }
             arrayParc.append(item)
     else:
-        like_string = "%" + searchValue + "%"
-        parcelles = Parcelle.objects.raw("SELECT * FROM cooperatives_parcelle as p INNER JOIN cooperatives_producteur as pr ON p.producteur_id = pr.code INNER JOIN cooperatives_section as s ON pr.section_id = s.id  WHERE pr.cooperative_id = "+str(cooperative.id)+" AND (p.code LIKE %s OR pr.nom LIKE %s OR s.libelle LIKE %s OR p.culture LIKE %s OR p.superficie LIKE %s OR p.longitude LIKE %s OR p.latitude LIKE %s ) ORDER BY "+columnName+" desc LIMIT "+row+","+rowperpage,[like_string, like_string, like_string, like_string, like_string, like_string,like_string])
+        parcelles = Parcelle.objects.filter(producteur__cooperative_id=cooperative).filter(Q(code__contains = searchValue)
+                                                                                       |Q(producteur__nom__contains = searchValue)
+                                                                                       |Q(producteur__section__libelle__contains = searchValue)
+                                                                                       |Q(culture__contains = searchValue)
+                                                                                       |Q(superficie__contains = searchValue)
+                                                                                       |Q(longitude__contains = searchValue)
+                                                                                       |Q(latitude__contains = searchValue)
+                                                                                       ).order_by('-created_at')[int(row):int(row)+int(rowperpage)]
         # parcelles = Parcelle.objects.filter(Q(producteur__cooperative_id= cooperative.id, code__istartswith=searchValue) | Q(producteur__nom__istartswith = searchValue)  | Q(culture__istartswith = searchValue) | Q(superficie__istartswith = searchValue) | Q(longitude__istartswith = searchValue)| Q(latitude__istartswith = searchValue)).order_by(columnName)[:int(rowperpage)]
         for par in parcelles :
             item = {
@@ -3298,10 +3320,15 @@ def plantTableFunction(request):
     arrayPlant = []
     
     plantLong = Planting.objects.filter(parcelle__producteur__cooperative_id=cooperative)
-    recherche = Planting.objects.filter(parcelle__producteur__cooperative_id=cooperative).filter(parcelle__code__contains = searchValue) 
+    recherche = Planting.objects.filter(parcelle__producteur__cooperative_id=cooperative).filter(Q(parcelle__producteur__nom__contains = searchValue)
+                                                                                                 |Q(parcelle__code__contains = searchValue)
+                                                                                                 |Q(date__contains = searchValue)
+                                                                                                 |Q(nb_plant_exitant__contains = searchValue)
+                                                                                                 ) 
 
     if searchValue == "":
-        plantings = Planting.objects.raw("SELECT * FROM cooperatives_planting as pl INNER JOIN cooperatives_parcelle as p ON pl.parcelle_id = p.code INNER JOIN cooperatives_producteur as pr ON p.producteur_id = pr.code  WHERE pr.cooperative_id = "+str(cooperative.id)+" ORDER BY pl.date desc LIMIT "+row+","+rowperpage+" ")
+        plantings = Planting.objects.filter(parcelle__producteur__cooperative_id=cooperative).order_by('-created_at')[int(row):int(row)+int(rowperpage)]
+        
         for plant in plantings :
             nbplant = DetailPlanting.objects.filter(planting_id = plant.code).aggregate(total=Sum('nb_plante'))['total']
             if nbplant is not None :
@@ -3321,8 +3348,12 @@ def plantTableFunction(request):
                 arrayPlant.append(item)
                 
     else:
-        like_string = "%" + searchValue + "%"
-        plantings = Planting.objects.raw("SELECT * FROM cooperatives_planting as pl INNER JOIN cooperatives_parcelle as p ON pl.parcelle_id = p.code INNER JOIN cooperatives_producteur as pr ON p.producteur_id = pr.code WHERE pr.cooperative_id = "+str(cooperative.id)+" AND (p.code LIKE %s OR pr.nom LIKE %s OR pl.date LIKE %s  ) ORDER BY pl.date desc LIMIT "+row+","+rowperpage,[like_string, like_string, like_string])
+
+        plantings = Planting.objects.filter(parcelle__producteur__cooperative_id=cooperative).filter(Q(parcelle__producteur__nom__contains = searchValue)
+                                                                                                 |Q(parcelle__code__contains = searchValue)
+                                                                                                 |Q(date__contains = searchValue)
+                                                                                                 |Q(nb_plant_exitant__contains = searchValue)
+                                                                                                 ).order_by('-created_at')[int(row):int(row)+int(rowperpage)]
         for plant in plantings :
             nbplant = DetailPlanting.objects.filter(planting_id = plant.code).aggregate(total=Sum('nb_plante'))['total']
             if nbplant is not None :

@@ -1143,6 +1143,7 @@ def noClusterCarte(request):
         # 'producteurs' : producteurs
     # }
     
+#############datatable cote client ###################
 @api_view(['POST'])
 def prodClientTableFunction(request):
     draw = request.POST['draw']
@@ -1153,12 +1154,11 @@ def prodClientTableFunction(request):
     columnSortOrder = request.POST['order[0][dir]']
     searchValue = request.POST['search[value]']
     
-    cooperative = Cooperative.objects.filter(utilisateur=request.user.utilisateur)
-    print(cooperative, len(cooperative))
+    cooperatives = Cooperative.objects.filter(utilisateur=request.user.utilisateur)
     arrayProd = []
-    # producteurs = []
-    prodLong = Producteur.objects.filter(cooperative_id = cooperative)
-    recherche = Producteur.objects.filter(Q(cooperative_id__in = cooperative) &  Q(code__contains = searchValue) 
+    
+    prodLong = Producteur.objects.filter(cooperative_id__in = cooperatives)
+    recherche = Producteur.objects.filter(cooperative_id__in = cooperatives).filter(Q(code__contains = searchValue) 
                                                | Q(cooperative__sigle__contains = searchValue) 
                                                | Q(section__libelle__contains = searchValue)
                                                | Q(nom__contains = searchValue)
@@ -1167,7 +1167,7 @@ def prodClientTableFunction(request):
                                                )
     
     if searchValue == "":
-        producteurs= Producteur.objects.filter(cooperative_id = cooperative).order_by("-created_at")[int(row):int(row)+int(rowperpage)]
+        producteurs= Producteur.objects.filter(cooperative_id__in = cooperatives).order_by("-created_at")[int(row):int(row)+int(rowperpage)]
         for prod in producteurs :
             superficies = Parcelle.objects.filter(producteur=prod).aggregate(total=Sum('superficie'))['total']
             
@@ -1191,7 +1191,7 @@ def prodClientTableFunction(request):
             arrayProd.append(item)
             
     else:
-        producteurs= Producteur.objects.filter(Q(cooperative_id__in = cooperative) &  Q(code__contains = searchValue) 
+        producteurs= Producteur.objects.filter(cooperative_id__in = cooperatives).filter(Q(code__contains = searchValue) 
                                                | Q(cooperative__sigle__contains = searchValue) 
                                                | Q(section__libelle__contains = searchValue)
                                                | Q(nom__contains = searchValue)
@@ -1244,7 +1244,7 @@ def parcClientTableFunction(request):
     arrayParc = []
     
     parcLong = Parcelle.objects.filter(producteur__cooperative_id__in=cooperative)
-    recherche = Parcelle.objects.filter(Q(producteur__cooperative_id__in = cooperative ) & Q(code__contains = searchValue)
+    recherche = Parcelle.objects.filter(producteur__cooperative_id__in=cooperative).filter(Q(code__contains = searchValue)
                                             | Q(type_parcelle__contains=searchValue)
                                             | Q(producteur__nom__contains = searchValue)
                                             | Q(producteur__cooperative__sigle__contains = searchValue)
@@ -1279,7 +1279,7 @@ def parcClientTableFunction(request):
             
             arrayParc.append(item)
     else:
-        parcelles = Parcelle.objects.filter(Q(producteur__cooperative_id__in = cooperative ) & Q(code__contains = searchValue)
+        parcelles = Parcelle.objects.filter(producteur__cooperative_id__in=cooperative).filter(Q(code__contains = searchValue)
                                             | Q(type_parcelle__contains=searchValue)
                                             | Q(producteur__cooperative__sigle__contains = searchValue)
                                             | Q(producteur__section__libelle__contains = searchValue)
@@ -1334,7 +1334,7 @@ def coopClientTableFunction(request):
     searchValue = request.POST['search[value]']
     
     coopLong = Cooperative.objects.filter(utilisateur=request.user.utilisateur)
-    recherche = Cooperative.objects.filter(Q(utilisateur=request.user.utilisateur) & Q(region__libelle__contains = searchValue)
+    recherche = Cooperative.objects.filter(utilisateur=request.user.utilisateur).filter(Q(region__libelle__contains = searchValue)
                                                   | Q(sigle__contains = searchValue)
                                                   | Q(siege__contains = searchValue)
                                                   | Q(contacts__contains = searchValue)
@@ -1373,7 +1373,7 @@ def coopClientTableFunction(request):
             
             arrayCoop.append(item)
     else:
-        cooperatives = Cooperative.objects.filter(Q(utilisateur=request.user.utilisateur) & Q(region__libelle__contains = searchValue)
+        cooperatives = Cooperative.objects.filter(utilisateur=request.user.utilisateur).filter(Q(region__libelle__contains = searchValue)
                                                   | Q(sigle__contains = searchValue)
                                                   | Q(siege__contains = searchValue)
                                                   | Q(contacts__contains = searchValue)
