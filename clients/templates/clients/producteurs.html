@@ -24,7 +24,7 @@
                                 <!-- /.panel-heading -->
                                 <div class="panel-body">
                                     <div class="table-responsive">
-                                        <table class="table table-striped table-bordered table-hover" id="dataTables-example">
+                                        <table class="table table-striped table-bordered table-hover" id="dataTables-producteur-client">
                                             <thead>
                                                 <tr>
                                                     <th class="text-center">PHOTO</th>
@@ -39,7 +39,7 @@
 {#                                                    <th>ACTIONS</th>#}
                                                 </tr>
                                             </thead>
-                                            <tbody class="text-center">
+                                            {% comment %} <tbody class="text-center">
                                                 {% for prod in producteurs %}
                                                     <tr class="odd gradeX text-center">
                                                         {% if not prod.image %}
@@ -62,7 +62,7 @@
 {#                                                        <td class="center"><a href="{% url 'detail_coop' coop.pk %}" class="btn btn-primary btn-xs">Accéder</a></td>#}
                                                     </tr>
                                                 {% endfor %}
-                                            </tbody>
+                                            </tbody> {% endcomment %}
                                         </table>
                                     </div>
                                 </div>

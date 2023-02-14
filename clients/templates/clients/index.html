@@ -215,7 +215,7 @@
                                 <!-- /.panel-heading -->
                                 <div class="panel-body">
                                     <div class="table-responsive">
-                                        <table class="table table-striped table-bordered table-hover" id="dataTables-example">
+                                        <table class="table table-striped table-bordered table-hover" id="dataTables-cooperative-client">
                                             <thead>
                                                 <tr>
                                                     <th class="text-center">REGION</th>
@@ -229,7 +229,7 @@
                                                     <th>ACTIONS</th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
+                                            {% comment %} <tbody>
                                                 {% for coop in cooperatives %}
                                                     <tr class="odd gradeX text-center">
                                                         <td>{{ coop.region }}</td>
@@ -247,7 +247,7 @@
                                                         <td class="center"><a href="{% url 'clients:detail_coop' coop.pk %}" class="btn btn-primary btn-xs">Accéder</a></td>
                                                     </tr>
                                                 {% endfor %}
-                                            </tbody>
+                                            </tbody> {% endcomment %}
                                         </table>
                                     </div>
                                 </div>

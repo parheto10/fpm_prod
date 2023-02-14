@@ -67,13 +67,12 @@
                             <!-- /.panel-heading -->
                             <div class="panel-body" style="font-size: 12px">
                                 <div class="table-responsive">
-                                    <table class="table table-striped table-bordered table-hover" id="dataTables-example">
+                                    <table class="table table-striped table-bordered table-hover" id="dataTables-parcelle">
                                         <thead>
                                             <tr>
                                                 <th class="text-center">CODE</th>
                                                 <th class="text-center">PRODUCTEUR</th>
                                                 <th class="text-center">SECTION</th>
-{#                                                <th class="text-center">CERTIFICATION</th>#}
                                                 <th class="text-center">CULTURE</th>
                                                 <th class="text-center">SUPERFICIE (Ha)</th>
                                                 <th class="text-center">LONG</th>
@@ -81,7 +80,7 @@
                                                 <th class="text-center">ACTIONS</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
+                                        {% comment %} <tbody>
                                             {% for parcelle in parcelles %}
                                                 <tr class="odd gradeX text-center">
                                                     {% if parcelle.code %}
@@ -111,7 +110,7 @@
                                                     </td>
                                                 </tr>
                                             {% endfor %}
-                                        </tbody>
+                                        </tbody> {% endcomment %}
                                     </table>
                                 </div>
                             </div>

@@ -36,14 +36,19 @@ from .views import (
     getListParcForcoop,
     getMonitoringForcoop,
     getProducteursForcoop,
+    importAnnuleProd,
+    importValidProd,
     monitoring_form_view,
     monitoringCreate,
     monitoringSave,
     obsMonitoringFunc,
+    parcTableFunction,
     parcelle_update,
     parcelleSave,
     participant_delete,
+    plantTableFunction,
     plantingSave,
+    prodTableFunction,
     producteurSave,
     producteurs,
     production,
@@ -72,6 +77,7 @@ from .views import (
     rempend_monitoring_view,
     remplacement_monitoring_view,
     saveParticipant,
+    saveProdFile,
     tranning,
     update_formation, delete_section, export_section_xls,
     update_section,
@@ -213,5 +219,16 @@ urlpatterns = [
    ################################################################## 28/06/2022 #######################MPI#######HISTORIQUE
     path('view_historique/',view_historique,name='view_historique'),
     path('consult_histo/',consult_histo,name='consult_histo'),
+    
+    ################################################## TEST ##############################
+    path('saveProdFile/',saveProdFile,name='save_prod_file'),
+    path('importValidProd/',importValidProd,name='importValidProd'),
+    path('importAnnuleProd/',importAnnuleProd,name='importAnnuleProd'),
+    
+    ###################################################################DATATABLE ##########
+    path('prod_table/',prodTableFunction,name='prodTable'),
+    path('parc_table/',parcTableFunction,name='parcTable'),
+    path('plant_table/',plantTableFunction,name='plantTable')
+    
 
 ]

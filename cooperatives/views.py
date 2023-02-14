@@ -5,6 +5,7 @@ import os
 import re
 import sys
 import uuid
+import pandas as pd
 #from numpy import iterable
 #from pandas import notnull
 
@@ -35,6 +36,7 @@ from rest_framework.decorators import api_view
 from django.views import View
 from xhtml2pdf import pisa
 from xlrd.formatting import Format
+from django.core.files.storage import FileSystemStorage
 
 # Import django Serializer Features #
 from django.http import HttpResponse, JsonResponse
@@ -43,15 +45,16 @@ from rest_framework.parsers import JSONParser
 
 from parametres.forms import UserForm
 from parametres.models import Intitule_Formation, Projet, Espece, Campagne, Role, Utilisateur
-from parametres.serializers import DetailMonitoringSerializer, DetailsPlantingSerializer, MonitoringEspeceSerializer, MonitoringSerializer, ParcelleSerializer, PlantingSerializer, ProducteurSerializer
+from parametres.serializers import DetailMonitoringSerializer, DetailsPlantingSerializer, MonitoringEspeceSerializer, MonitoringSerializer, ParcelleSerializer, PlantingSerializer, ProducteurDataTableSerializer, ProducteurSerializer
 from .forms import CoopForm, EditProductionForm, MonitoringEspeceForm, ParticipantcoopForm, ProdForm, EditProdForm, ParcelleForm, RemplacementMonitoringForm, SectionForm, Sous_SectionForm, \
      FormationForm, DetailFormation, EditFormationForm, EditParcelleForm, Edit_Sous_SectionForm, MonitoringForm, \
     PlantingForm, DetailPlantingForm, ProductionForm
-from .models import Cooperative, DetailMonitoring, DetailPlantingRemplacement, MonitoringEspece, \
+from .models import Cooperative, DetailMonitoring, DetailPlantingRemplacement, ImportProdFileModel, MonitoringEspece, \
     MonitoringEspeceremplacement,MonitoringObsMobile, Participantcoop, Participantformation, RemplacementMonitoring, Section, Sous_Section, \
     Producteur, Parcelle, Planting, Formation, Detail_Formation, \
     DetailPlanting, Monitoring, Production, SyncHistorique
 from .serializers import CooperativeSerliazer, ParcelleSerliazer
+from django.db.models import Q
 
 
 def is_cooperative(user):
@@ -258,26 +261,14 @@ def producteurs(request):
     activate = "producteurs"
     role = Role.objects.get(id = request.user.utilisateur.role_id)
     cooperative = Cooperative.objects.get(utilisateur=request.user.utilisateur)
-    producteurs = Producteur.objects.filter(cooperative_id=cooperative)#.order_by("-add_le")
+    # producteurs = Producteur.objects.filter(cooperative_id=cooperative)#.order_by("-add_le")
     sections = Section.objects.filter(id= 44) | Section.objects.filter(cooperative_id = cooperative)
     sous_sections = Sous_Section.objects.all().filter(section__cooperative_id=cooperative)
 
     prodForm = ProdForm()
-   # if request.method == 'POST':
-   #     prodForm = ProdForm(request.POST, request.FILES)
-   #
-   #     if prodForm.is_valid():
-   #         producteur = prodForm.save(commit=False)
-   #         producteur.cooperative_id = cooperative.id
-   #
-   #         producteur = producteur.save()
-   #         # print(producteur)
-   #         messages.success(request, "Producteur Ajouté avec succès")
-   #         return HttpResponseRedirect(reverse('cooperatives:producteurs'))
-
     context = {
         "cooperative":cooperative,
-        "producteurs": producteurs,
+        # "producteurs": producteurs,
         'prodForm': prodForm,
         'sections':sections,
         'sous_sections':sous_sections,
@@ -287,25 +278,16 @@ def producteurs(request):
     }
     return render(request, "cooperatives/producteurs.html", context)
 
-#def prod_update(request, code=None):
-#	instance = get_object_or_404(Producteur, code=code)
-#	form = EditProdForm(request.POST or None, request.FILES or None, instance=instance)
-#	if form.is_valid():
-#		instance = form.save(commit=False)
-#		instance.save()
-#		messages.success(request, "Producteur Modifié Avec Succès", extra_tags='html_safe')
-#		return HttpResponseRedirect(reverse('cooperatives:producteurs'))
-#
-#	context = {
-#		"instance": instance,
-#		"form":form,
-#	}
-#	return render(request, "cooperatives/prod_edt.html", context)
-
 
 def prod_delete(request, code=None):
     item = get_object_or_404(Producteur, code=code)
     item.delete()
+    try :
+        importProd = get_object_or_404(ImportProdFileModel, code = code)
+        importProd.delete()
+    except ImportProdFileModel.DoesNotExist :
+        pass
+    
 
 
 @login_required(login_url='connexion')
@@ -315,28 +297,12 @@ def parcelles(request):
     cooperative = Cooperative.objects.get(utilisateur=request.user.utilisateur)
     prods = Producteur.objects.filter(cooperative_id=cooperative)
     s_sections = Sous_Section.objects.all().filter(section__cooperative_id=cooperative)
-    parcelles = Parcelle.objects.all().filter(producteur__cooperative_id=cooperative)
+    # parcelles = Parcelle.objects.all().filter(producteur__cooperative_id=cooperative)
     parcelleForm = ParcelleForm(request.POST or None)
-    if request.method == 'POST':
-        parcelleForm = ParcelleForm(request.POST, request.FILES)
-        if parcelleForm.is_valid():
-            parcelle = parcelleForm.save(commit=False)
-            for prod in prods:
-                parcelle.producteur_id = prod.id
-                if not parcelle.code:
-                    tot = Parcelle.objects.filter(producteur_id=prod).count()
-                    parcelle.code = "%s-%s" % (parcelle.producteur.code, tot)
-
-            for sect in s_sections:
-                parcelle.sous_section_id = sect.id
-
-            parcelle = parcelle.save()
-        messages.success(request, "Parcelle Ajoutés avec succès")
-        return HttpResponseRedirect(reverse('cooperatives:parcelles'))
 
     context = {
         "cooperative":cooperative,
-        "parcelles": parcelles,
+        # "parcelles": parcelles,
         'parcelleForm': parcelleForm,
         'producteurs': prods,
         's_sections': s_sections,
@@ -550,7 +516,7 @@ def export_section_xls(request):
     font_style = xlwt.XFStyle()
     font_style.font.bold = True
 
-    columns = ['LIBELLE', 'RESPONSABLE', 'CONTACTS']
+    columns = ['ID','LIBELLE', 'RESPONSABLE', 'CONTACTS']
 
     for col_num in range(len(columns)):
         ws.write(row_num, col_num, columns[col_num], font_style)
@@ -559,6 +525,7 @@ def export_section_xls(request):
     font_style = xlwt.XFStyle()
     cooperative = Cooperative.objects.get(utilisateur=request.user.utilisateur)
     rows = Section.objects.all().filter(cooperative_id=cooperative.id).values_list(
+        'id',
         'libelle',
         'responsable',
         'contacts',
@@ -1085,15 +1052,15 @@ def CoopPlantings(request):
     # especes = Espece.objects.all()
     campagnes = Campagne.objects.all()
     projets = Projet.objects.all()
-    plantings = Planting.objects.filter(parcelle__producteur__cooperative_id=cooperative)
+    # plantings = Planting.objects.filter(parcelle__producteur__cooperative_id=cooperative)
 
-    for plant in plantings :
-        plant.nbplant = DetailPlanting.objects.filter(planting_id = plant.code).aggregate(total=Sum('nb_plante'))['total']
-        if plant.nbplant is not None:
-            plant.totale = plant.nbplant + plant.nb_plant_exitant
-        else:
-            plant.total = plant.nb_plant_exitant
-            plant.nbplant = 0
+    # for plant in plantings :
+    #     plant.nbplant = DetailPlanting.objects.filter(planting_id = plant.code).aggregate(total=Sum('nb_plante'))['total']
+    #     if plant.nbplant is not None:
+    #         plant.totale = plant.nbplant + plant.nb_plant_exitant
+    #     else:
+    #         plant.total = plant.nb_plant_exitant
+    #         plant.nbplant = 0
 
     plantingForm = PlantingForm()
 
@@ -1101,7 +1068,7 @@ def CoopPlantings(request):
     context = {
         'cooperative':cooperative,
         'parcelles':parcelles,
-        'plantings':plantings,
+        # 'plantings':plantings,
         'campagnes':campagnes,
         'projets':projets,
         'especes': especes,
@@ -2968,3 +2935,482 @@ def consult_histo(request):
 
     templateStr = render_to_string("historique/consult_view.html", context)
     return JsonResponse({'templateStr':templateStr,'date':date,'id':id},safe=False)
+
+
+
+###importation de ficher producteur
+# if not prodFile.name.endswith(('xlsx', 'xls', 'csv', 'ods')):
+#     messages.info(request, 'mauvais format')
+#     return redirect('cooperatives:producteurs')
+# else:
+#     fs = FileSystemStorage()
+#     filename = fs.save(prodFile.name, prodFile)
+#     uploaded_file_url = fs.url(filename)
+#     try:
+#         exceldata = pd.read_excel(fs.path(filename))
+#     except Exception as e:
+#         messages.info(request, 'Erreur de lecture de fichier Excel')
+#         fs.delete(filename)
+#         return redirect('cooperatives:producteurs')
+#     # Do something with the exceldata variable
+#     # ...
+#     return redirect('cooperatives:producteurs') 
+
+
+@login_required(login_url='connexion')
+def saveProdFile(request):
+    role = Role.objects.get(id = request.user.utilisateur.role_id)
+    cooperative = Cooperative.objects.get(utilisateur=request.user.utilisateur)
+    if request.method == "POST" and request.FILES['prodFile'] : 
+        prodFile = request.FILES['prodFile']
+        
+        if not prodFile.name.endswith('xlsx') |  prodFile.name.endswith('xls') | prodFile.name.endswith('csv') | prodFile.name.endswith('ods')  : 
+            messages.info(request, 'mauvais format')
+            return redirect('cooperatives:producteurs')
+        else :
+            fs = FileSystemStorage()
+            filename = fs.save(prodFile.name, prodFile)
+            uploaded_file_url = fs.url(filename)
+            
+  
+            exceldata = pd.read_excel(fs.path(filename))
+            if set(['code','nom','localite','section','nb_parcelle','genre','date_naissance','contact']).issubset(exceldata.columns) :
+                
+                for db in exceldata.itertuples() : 
+                    if exceldata.isnull().values.any() != True  :
+                            if len(ImportProdFileModel.objects.filter(code = db.code).filter(cooperative_id = cooperative.id)) == 0 :
+                                if len(Producteur.objects.filter(code=db.code)) == 0 :
+                                    objdata = ImportProdFileModel.objects.create(
+                                        code = db.code.upper(),
+                                        nom = db.nom.upper(),
+                                        localite = db.localite,
+                                        section_id = int(db.section),
+                                        nb_parcelle = db.nb_parcelle,
+                                        genre = db.genre,
+                                        dob = db.date_naissance,
+                                        contacts = db.contact,
+                                        user_id = request.user.utilisateur.id,
+                                        cooperative_id = cooperative.id,
+                                    )
+                                else :
+                                    producteur = get_object_or_404(Producteur,code = db.code)
+                                    objdata = ImportProdFileModel.objects.create(
+                                        code = producteur.code,
+                                        nom = producteur.nom,
+                                        localite = producteur.localite,
+                                        section_id = producteur.section_id,
+                                        nb_parcelle = producteur.nb_parcelle,
+                                        genre = producteur.genre,
+                                        dob = producteur.dob,
+                                        contacts = producteur.contacts,
+                                        user_id = request.user.utilisateur.id,
+                                        cooperative_id = cooperative.id,
+                                        nom_prime = db.nom.upper(),
+                                        localite_prime=db.localite,
+                                        section_prime = db.section,
+                                        nb_parcelle_prime = db.nb_parcelle,
+                                        genre_prime = db.genre,
+                                        dob_prime = db.date_naissance,
+                                        contacts_prime = db.contact,
+                                        user_id_prime = request.user.utilisateur.id,
+                                        cooperative_prime= cooperative.id
+                                    )
+                            
+                            elif len(ImportProdFileModel.objects.filter(code = db.code).filter(cooperative_id = cooperative.id).filter(etatValidate = "EN ATTENTE")) >0 :
+                                prod = get_object_or_404(ImportProdFileModel,code = db.code)
+                                prod.nom_prime = db.nom.upper()
+                                prod.localite_prime=db.localite
+                                prod.section_prime = db.section
+                                prod.nb_parcelle_prime = db.nb_parcelle
+                                prod.genre_prime = db.genre
+                                prod.dob_prime = db.date_naissance
+                                prod.contacts_prime = db.contact
+                                prod.etatValidate = "EN ATTENTE"
+                                prod.user_id_prime = request.user.utilisateur.id
+                                prod.cooperative_prime= cooperative.id
+                                
+                                
+                                prod.save()
+                            elif len(ImportProdFileModel.objects.filter(code = db.code).filter(cooperative_id = cooperative.id).filter(etatValidate = "ANNULER")) > 0 or len(ImportProdFileModel.objects.filter(code = db.code).filter(cooperative_id = cooperative.id).filter(etatValidate = "IMPORTER")) > 0 :
+                                if len(Producteur.objects.filter(code=db.code)) > 0 :
+                                    prod = get_object_or_404(ImportProdFileModel,code = db.code)
+                                    prod.nom_prime = db.nom.upper()
+                                    prod.localite_prime=db.localite
+                                    prod.section_prime = db.section
+                                    prod.nb_parcelle_prime = db.nb_parcelle
+                                    prod.genre_prime = db.genre
+                                    prod.dob_prime = db.date_naissance
+                                    prod.contacts_prime = db.contact
+                                    prod.etatValidate = "EN ATTENTE"
+                                    prod.user_id_prime = request.user.utilisateur.id
+                                    prod.cooperative_prime= cooperative.id
+                                    prod.save()
+                                else :
+                                    prod = get_object_or_404(ImportProdFileModel,code = db.code)
+                                    prod.delete()
+                                    objdata = ImportProdFileModel.objects.create(
+                                        code = db.code.upper(),
+                                        nom = db.nom.upper(),
+                                        localite = db.localite,
+                                        section_id = int(db.section),
+                                        nb_parcelle = db.nb_parcelle,
+                                        genre = db.genre,
+                                        dob = db.date_naissance,
+                                        contacts = db.contact,
+                                        user_id = request.user.utilisateur.id,
+                                        cooperative_id = cooperative.id,
+                                    )
+                        
+                    
+                    else :
+                        messages.info(request, 'Erreur les columns [code,nom,section,cooperative]  ont une ou plusieurs cases vide')
+                        return redirect('cooperatives:producteurs')
+            else : 
+                messages.info(request, 'Erreur dans sur les columns de votre fichier [code,nom,localite,section,cooperative,nb_parcelle,genre,date_naissance,contact]')
+                return redirect('cooperatives:producteurs')
+                    
+
+            listProd = ImportProdFileModel.objects.filter(etatValidate = "EN ATTENTE").filter(cooperative_id = cooperative.id)
+            #filename = fs.save(prodFile.name, prodFile)
+            filedel = fs.delete(prodFile.name)
+
+            context = {
+                'cooperative': cooperative,
+                'role':role,
+                'listProd':listProd
+            }
+            return render(request, 'historique/test.html',context)
+            
+
+@api_view(['GET'])
+def importValidProd(request):
+    cooperative = Cooperative.objects.get(utilisateur=request.user.utilisateur)
+    ficherAimporter = ImportProdFileModel.objects.filter(etatValidate = "EN ATTENTE").filter(cooperative_id = cooperative.id)
+
+    for fichierprod in ficherAimporter:
+        
+        if fichierprod.nom_prime is not None :
+            if len(Producteur.objects.filter(code=fichierprod.code)) == 0 :
+                prod = Producteur.objects.create(
+                    code = fichierprod.code,
+                    cooperative_id = fichierprod.cooperative_prime,
+                    origine_id = 1,
+                    sous_prefecture_id = 1,
+                    nom = fichierprod.nom_prime,
+                    dob  = fichierprod.dob_prime,
+                    genre = fichierprod.genre_prime,
+                    contacts = fichierprod.contacts_prime,
+                    localite = fichierprod.localite_prime,
+                    section_id = fichierprod.section_prime,
+                    nb_parcelle = fichierprod.nb_parcelle_prime,
+                    user_id = fichierprod.user_id_prime
+                )
+            else:
+                producteur =get_object_or_404(Producteur, code=fichierprod.code)
+                producteur.cooperative_id = fichierprod.cooperative_prime
+                producteur.nom = fichierprod.nom_prime
+                producteur.dob  = fichierprod.dob_prime
+                producteur.genre = fichierprod.genre_prime
+                producteur.contacts = fichierprod.contacts_prime
+                producteur.localite = fichierprod.localite_prime
+                producteur.section_id = int(fichierprod.section_prime)
+                producteur.nb_parcelle = fichierprod.nb_parcelle_prime
+                producteur.user_id = fichierprod.user_id_prime
+                
+                producteur.save()
+                
+        else :
+            if len(Producteur.objects.filter(code=fichierprod.code)) == 0 :
+                prod = Producteur.objects.create(
+                        code = fichierprod.code,
+                        cooperative_id = fichierprod.cooperative_id,
+                        origine_id = 1,
+                        sous_prefecture_id = 1,
+                        nom = fichierprod.nom,
+                        dob  = fichierprod.dob,
+                        genre = fichierprod.genre,
+                        contacts = fichierprod.contacts,
+                        localite = fichierprod.localite,
+                        section_id = fichierprod.section_id,
+                        nb_parcelle = fichierprod.nb_parcelle,
+                        user_id = fichierprod.user_id
+                    )
+            else :
+                producteur =get_object_or_404(Producteur, code=fichierprod.code)
+                producteur.cooperative_id = fichierprod.cooperative_id
+                producteur.nom = fichierprod.nom
+                producteur.dob  = fichierprod.dob
+                producteur.genre = fichierprod.genre
+                producteur.contacts = fichierprod.contacts
+                producteur.localite = fichierprod.localite
+                producteur.section_id = int(fichierprod.section_id)
+                producteur.nb_parcelle = fichierprod.nb_parcelle
+                producteur.user_id = fichierprod.user_id
+                
+                producteur.save()
+        
+        fichierprod.etatValidate = "IMPORTER"
+        fichierprod.save()
+                  
+    #return redirect('cooperatives:producteurs')
+            
+        
+@api_view(['GET'])
+def importAnnuleProd(request):
+    cooperative = Cooperative.objects.get(utilisateur=request.user.utilisateur)
+    ficherAimporter = ImportProdFileModel.objects.filter(etatValidate = "EN ATTENTE").filter(cooperative_id = cooperative.id)
+    
+    for fichierprod in ficherAimporter :
+        fichierprod.etatValidate = "ANNULER"
+        fichierprod.save()
+        
+
+### datatable ################################################################
+@api_view(['POST'])
+def prodTableFunction(request):
+    draw = request.POST['draw']
+    row = request.POST['start']
+    rowperpage = request.POST['length']
+    columIndex = request.POST['order[0][column]']
+    columnName = request.POST['columns['+columIndex+'][data]']
+    columnSortOrder = request.POST['order[0][dir]']
+    searchValue = request.POST['search[value]']
+    
+    cooperative = Cooperative.objects.get(utilisateur=request.user.utilisateur)
+    arrayProd = []
+
+    #recherche = Producteur.objects.raw("SELECT count(*) as allcount FROM cooperatives_producteur WHERE code LIKE %s OR nom LIKE %s OR genre LIKE %s OR type_producteur LIKE %s OR section %s OR localite LIKE %s",(likeString,likeString,likeString,likeString,likeString,likeString))
+    prodLong = Producteur.objects.filter(cooperative_id=cooperative)
+    recherche = Producteur.objects.filter(cooperative_id=cooperative).filter(Q(code__contains = searchValue)
+                                                                             |Q(nom__contains = searchValue)
+                                                                             |Q(genre__contains = searchValue)
+                                                                             |Q(type_producteur__contains = searchValue)
+                                                                             |Q(section__libelle__contains = searchValue)
+                                                                             |Q(localite__contains = searchValue)
+                                                                             )
+    
+    if searchValue == "":
+        # producteurs = Producteur.objects.filter(cooperative_id=cooperative).order_by(columnName)[:int(row)].values()
+        producteurs = Producteur.objects.filter(cooperative_id=cooperative).order_by("-created_at")[int(row):int(row)+int(rowperpage)]
+        
+        for prod in producteurs :
+            if prod.image :
+                photo = '<td><img class="img-rounded" width="45" height="45" src="{0}" alt="{1}"></td>'.format(prod.image.url,prod.code)
+            else :
+                photo = '<img class="img-rounded" width="45" height="45" src="/static/img/Logo.jpg" alt="{0}">'.format(prod.code)
+            
+            
+            item = {
+                "image": photo,
+                "code":prod.code,
+                "nom":prod.nom,
+                "genre":prod.genre,
+                "type_producteur":prod.type_producteur,
+                "section_libelle":Section.objects.get(id= prod.section_id).libelle,
+                "localite":prod.localite,
+                "action": '<a href="#" onclick="edit_prod(\'{0}\')" style="padding: 3px;margin-top: 6px;margin-right:5px;" class="btn btn-primary"><i class="fa fa-edit fa-fw"></i></a><a href="#" onclick="delete_semence(\'{1}\')" style="padding: 3px;margin-top: 6px;" class="btn btn-danger"><i class="fa fa-trash fa-fw"></i></a>'.format(
+                        reverse('cooperatives:modifier', args=[prod.code]),
+                        reverse('cooperatives:del_producteur', args=[prod.code])
+                    )
+                }
+            arrayProd.append(item)
+    else:
+        producteurs = Producteur.objects.filter(cooperative_id=cooperative).filter(Q(code__contains = searchValue)
+                                                                             |Q(nom__contains = searchValue)
+                                                                             |Q(genre__contains = searchValue)
+                                                                             |Q(type_producteur__contains = searchValue)
+                                                                             |Q(section__libelle__contains = searchValue)
+                                                                             |Q(localite__contains = searchValue)
+                                                                             ).order_by("-created_at")[int(row):int(row)+int(rowperpage)]
+        # producteurs = Producteur.objects.filter(cooperative_id=cooperative).filter(code__istartswith =searchValue).order_by(columnName)[int(row):int(rowperpage)].values()
+        for prod in producteurs :
+            if prod.image :
+                photo = '<td><img class="img-rounded" width="45" height="45" src="{0}" alt="{1}"></td>'.format(prod.image.url,prod.code)
+            else :
+                photo = '<img class="img-rounded" width="45" height="45" src="/static/img/Logo.jpg" alt="{0}">'.format(prod.code)
+            
+            
+            item = {
+                "image": photo,
+                "code":prod.code,
+                "nom":prod.nom,
+                "genre":prod.genre,
+                "type_producteur":prod.type_producteur,
+                "section_libelle":Section.objects.get(id= prod.section_id).libelle,
+                "localite":prod.localite,
+                "action": '<a href="#" onclick="edit_prod(\'{0}\')" style="padding: 3px;margin-top: 6px; margin-right:5px;" class="btn btn-primary"><i class="fa fa-edit fa-fw"></i></a><a href="#" onclick="delete_semence(\'{1}\')" style="padding: 3px;margin-top: 6px;" class="btn btn-danger"><i class="fa fa-trash fa-fw"></i></a>'.format(
+                    reverse('cooperatives:modifier', args=[prod.code]),
+                    reverse('cooperatives:del_producteur', args=[prod.code])
+                    )
+                 }
+            arrayProd.append(item)
+        
+    
+    return JsonResponse({
+            'draw':int(draw),
+            'recordsTotal' : len(prodLong),
+            'recordsFiltered':len(recherche),
+            'aaData': arrayProd,
+            },safe=False)
+    
+    
+
+        
+    
+    
+@api_view(['POST'])
+def parcTableFunction(request):
+    draw = request.POST['draw']
+    row = request.POST['start']
+    rowperpage = request.POST['length']
+    columIndex = request.POST['order[0][column]']
+    columnName = request.POST['columns['+columIndex+'][data]']
+    columnSortOrder = request.POST['order[0][dir]']
+    searchValue = request.POST['search[value]']
+    
+    cooperative = Cooperative.objects.get(utilisateur=request.user.utilisateur)
+    arrayParc = []
+    
+    
+    parcLong = Parcelle.objects.filter(producteur__cooperative_id=cooperative)
+    recherche = Parcelle.objects.filter(producteur__cooperative_id=cooperative).filter(Q(code__contains = searchValue)
+                                                                                       |Q(producteur__nom__contains = searchValue)
+                                                                                       |Q(producteur__section__libelle__contains = searchValue)
+                                                                                       |Q(culture__contains = searchValue)
+                                                                                       |Q(superficie__contains = searchValue)
+                                                                                       |Q(longitude__contains = searchValue)
+                                                                                       |Q(latitude__contains = searchValue)
+                                                                                       )
+    
+    
+    if searchValue == "":
+        
+        parcelles = Parcelle.objects.filter(producteur__cooperative_id=cooperative).order_by('-created_at')[int(row):int(row)+int(rowperpage)]
+        for par in parcelles :
+            item = {
+                "code":par.code,
+                "producteur":par.producteur.nom,
+                "section":par.producteur.section.libelle,
+                "culture":par.culture,
+                "superficie":par.superficie,
+                "longitude":par.longitude,
+                "latitude":par.latitude,
+                "action": '<a href="#" onclick="edit_parcelle(\'{0}\')" style="padding: 3px;margin-top: 6px; margin-right:5px;" class="btn btn-primary"><i class="fa fa-edit fa-fw"></i></a><a href="#" onclick="delete_semence(\'{1}\')" style="padding: 3px;margin-top: 6px;" class="btn btn-danger"><i class="fa fa-trash fa-fw"></i></a>'.format(
+                    reverse('cooperatives:edit_parcelle', args=[par.code]),
+                    reverse('cooperatives:parcelle_delete', args=[par.code])
+                    )
+            }
+            arrayParc.append(item)
+    else:
+        parcelles = Parcelle.objects.filter(producteur__cooperative_id=cooperative).filter(Q(code__contains = searchValue)
+                                                                                       |Q(producteur__nom__contains = searchValue)
+                                                                                       |Q(producteur__section__libelle__contains = searchValue)
+                                                                                       |Q(culture__contains = searchValue)
+                                                                                       |Q(superficie__contains = searchValue)
+                                                                                       |Q(longitude__contains = searchValue)
+                                                                                       |Q(latitude__contains = searchValue)
+                                                                                       ).order_by('-created_at')[int(row):int(row)+int(rowperpage)]
+        # parcelles = Parcelle.objects.filter(Q(producteur__cooperative_id= cooperative.id, code__istartswith=searchValue) | Q(producteur__nom__istartswith = searchValue)  | Q(culture__istartswith = searchValue) | Q(superficie__istartswith = searchValue) | Q(longitude__istartswith = searchValue)| Q(latitude__istartswith = searchValue)).order_by(columnName)[:int(rowperpage)]
+        for par in parcelles :
+            item = {
+                "code":par.code,
+                "producteur":par.producteur.nom,
+                "section":par.producteur.section.libelle,
+                "culture":par.culture,
+                "superficie":par.superficie,
+                "longitude":par.longitude,
+                "latitude":par.latitude,
+                "action": '<a href="#" onclick="edit_parcelle(\'{0}\')" style="padding: 3px;margin-top: 6px; margin-right:5px;" class="btn btn-primary"><i class="fa fa-edit fa-fw"></i></a><a href="#" onclick="delete_semence(\'{1}\')" style="padding: 3px;margin-top: 6px;" class="btn btn-danger"><i class="fa fa-trash fa-fw"></i></a>'.format(
+                    reverse('cooperatives:edit_parcelle', args=[par.code]),
+                    reverse('cooperatives:parcelle_delete', args=[par.code])
+                    )
+            }
+            arrayParc.append(item)
+            
+    
+    
+    return JsonResponse({
+            'draw':int(draw),
+            'recordsTotal' : len(parcLong),
+            'recordsFiltered':len(recherche),
+            'aaData': arrayParc,
+            },safe=False)
+    
+
+@api_view(['POST'])
+def plantTableFunction(request):
+    draw = request.POST['draw']
+    row = request.POST['start']
+    rowperpage = request.POST['length']
+    columIndex = request.POST['order[0][column]']
+    columnName = request.POST['columns['+columIndex+'][data]']
+    columnSortOrder = request.POST['order[0][dir]']
+    searchValue = request.POST['search[value]']
+    
+    cooperative = Cooperative.objects.get(utilisateur=request.user.utilisateur)
+    arrayPlant = []
+    
+    plantLong = Planting.objects.filter(parcelle__producteur__cooperative_id=cooperative)
+    recherche = Planting.objects.filter(parcelle__producteur__cooperative_id=cooperative).filter(Q(parcelle__producteur__nom__contains = searchValue)
+                                                                                                 |Q(parcelle__code__contains = searchValue)
+                                                                                                 |Q(date__contains = searchValue)
+                                                                                                 |Q(nb_plant_exitant__contains = searchValue)
+                                                                                                 ) 
+
+    if searchValue == "":
+        plantings = Planting.objects.filter(parcelle__producteur__cooperative_id=cooperative).order_by('-created_at')[int(row):int(row)+int(rowperpage)]
+        
+        for plant in plantings :
+            nbplant = DetailPlanting.objects.filter(planting_id = plant.code).aggregate(total=Sum('nb_plante'))['total']
+            if nbplant is not None :
+                item = {
+                    "producteur" : plant.parcelle.producteur.nom,
+                    "parcelle" : plant.parcelle.code,
+                    "existant" : plant.nb_plant_exitant,
+                    "recus" : nbplant,
+                    "total" : nbplant + plant.nb_plant_exitant,
+                    "date" : plant.date,
+                    "action" : '<a href="{0}" class="btn btn-success">suivi <i class="fa fa-chevron-right"></i></a>'.format(
+                        reverse('cooperatives:suivi_planting', args=[plant.code]),
+                    )
+                    
+                }
+                
+                arrayPlant.append(item)
+                
+    else:
+
+        plantings = Planting.objects.filter(parcelle__producteur__cooperative_id=cooperative).filter(Q(parcelle__producteur__nom__contains = searchValue)
+                                                                                                 |Q(parcelle__code__contains = searchValue)
+                                                                                                 |Q(date__contains = searchValue)
+                                                                                                 |Q(nb_plant_exitant__contains = searchValue)
+                                                                                                 ).order_by('-created_at')[int(row):int(row)+int(rowperpage)]
+        for plant in plantings :
+            nbplant = DetailPlanting.objects.filter(planting_id = plant.code).aggregate(total=Sum('nb_plante'))['total']
+            if nbplant is not None :
+                item = {
+                    "producteur" : plant.parcelle.producteur.nom,
+                    "parcelle" : plant.parcelle.code,
+                    "existant" : plant.nb_plant_exitant,
+                    "recus" : nbplant,
+                    "total" : nbplant + plant.nb_plant_exitant,
+                    "date" : plant.date,
+                    "action" : '<a href="{0}" class="btn btn-success">suivi <i class="fa fa-chevron-right"></i></a>'.format(
+                        reverse('cooperatives:suivi_planting', args=[plant.code]),
+                    )
+                    
+                }
+                
+                arrayPlant.append(item)
+    
+                
+                
+    
+    return JsonResponse({
+            'draw':int(draw),
+            'recordsTotal' : len(plantLong),
+            'recordsFiltered':len(recherche),
+            'aaData': arrayPlant,
+            },safe=False)
+    
+                

@@ -6,12 +6,15 @@ from .views import (
     DetailPlantingsbyNoyear,
     camp_filterdashboad,
     client_index,
+    coopClientTableFunction,
     coopdetailPlantings,
     detail_planting,
     export_formation_to_pdf,
     export_planting_xls,
     noClusterCarte,
+    parcClientTableFunction,
     plants_par_section,
+    prodClientTableFunction,
     projet,
     detail_proj,
     localisation,
@@ -96,5 +99,10 @@ urlpatterns = [
     path('camp_filter/', camp_filterdashboad, name='camp_filter'),
     path('plantings/<str:code>', detail_planting, name='suivi_planting'),
     path('export_planting_xls/<int:id>', export_planting_xls, name='export_planting_xls'),
-    path('map_parcelles/', noClusterCarte, name='catre_cluster'),
+    path('map_parcelles/', noClusterCarte, name='catre_cluster'), 
+    
+    ########## DATATABLE CLIENT ######################
+    path('prod_client_table/',prodClientTableFunction, name='prodClientTable'),
+    path('parc_client_table/',parcClientTableFunction, name='parcClientTable'),
+    path('coop-client-table/',coopClientTableFunction,name='coopClientTable'),
 ]

@@ -38,6 +38,172 @@
         });
     });
 
+    // datatable avec ajax 
+    $(document).ready(function() {
+        $('#dataTables-producteur').DataTable({
+           // 'processing': true,
+            'serverSide': true,
+            'ajax': {
+                'url':'{% url 'cooperatives:prodTable' %}',
+                'type': 'POST',
+                
+                
+            },
+            pageLength: 10,
+            'columns': [
+                {data: 'image'},
+                {data: 'code'},
+                {data: 'nom'},
+                {data: 'genre'},
+                {data: 'type_producteur'},
+                {data: 'section_libelle'},
+                {data: 'localite'},
+                {data: 'action'},
+            ]
+
+        });
+    });
+
+
+    $(document).ready(function() {
+        $('#dataTables-parcelle').DataTable({
+           // 'processing': true,
+            'serverSide': true,
+            'ajax': {
+                'url':'{% url 'cooperatives:parcTable' %}',
+                'type': 'POST',
+                
+                
+            },
+            pageLength: 10,
+            'columns': [
+               // {data: 'image'},
+                {data: 'code'},
+                {data: 'producteur'},
+                {data: 'section'},
+                {data: 'culture'},
+                {data: 'superficie'},
+                {data: 'longitude'},
+                {data: 'latitude'},
+                {data: 'action'},
+            ]
+
+        });
+    });
+
+
+    $(document).ready(function() {
+        $('#dataTables-planting').DataTable({
+           // 'processing': true,
+            'serverSide': true,
+            'ajax': {
+                'url':'{% url 'cooperatives:plantTable' %}',
+                'type': 'POST',
+                
+                
+            },
+            pageLength: 10,
+            'columns': [
+               // {data: 'image'},
+                {data: 'producteur'},
+                {data: 'parcelle'},
+                {data: 'existant'},
+                {data: 'recus'},
+                {data: 'total'},
+                {data: 'date'},
+                {data: 'action'},
+            ]
+
+        });
+    });
+
+
+    $(document).ready(function() {
+        $('#dataTables-producteur-client').DataTable({
+            'processing': true,
+            'serverSide': true,
+            'ajax': {
+                'url':'{% url 'clients:prodClientTable' %}',
+                'type': 'POST',
+                
+                
+            },
+            pageLength: 10,
+            'columns': [
+                {data: 'image'},
+                {data: 'code'},
+                {data: 'cooperative'},
+                {data: 'section'},
+                {data: 'nom'},
+                {data: 'localite'},
+                {data: 'contact'},
+                {data: 'nbre_parcelle'},
+                {data: 'superficie'},
+            ]
+
+        });
+    });
+
+
+    $(document).ready(function() {
+        $('#dataTables-parcelle-client').DataTable({
+            'processing': true,
+            'serverSide': true,
+            'ajax': {
+                'url':'{% url 'clients:parcClientTable' %}',
+                'type': 'POST',
+                
+                
+            },
+            pageLength: 10,
+            'columns': [
+               // {data: 'image'},
+                {data: 'type'},
+                {data: 'cooperative'},
+                {data: 'section'},
+                {data: 'producteur'},
+                {data: 'code'},
+                {data: 'code_certificat'},
+                {data: 'localite'},
+                {data: 'coordonnee'},
+                {data: 'superficie'},
+                {data: 'recus'},
+                {data: 'plante'},
+            ]
+
+        });
+    });
+
+
+    $(document).ready(function() {
+        $('#dataTables-cooperative-client').DataTable({
+            'processing': true,
+            'serverSide': true,
+            'ajax': {
+                'url':'{% url 'clients:coopClientTable' %}',
+                'type': 'POST',
+                
+                
+            },
+            pageLength: 10,
+            'columns': [
+               // {data: 'image'},
+                {data: 'region'},
+                {data: 'sigle'},
+                {data: 'siege'},
+                {data: 'contact'},
+                {data: 'nbre_section'},
+                {data: 'nbre_producteur'},
+                {data: 'nbre_parcelle'},
+                {data: 'superficie'},
+                {data: 'action'},
+            ]
+
+        });
+    });
+
+
+
       	
 
        
