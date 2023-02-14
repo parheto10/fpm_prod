@@ -2939,6 +2939,23 @@ def consult_histo(request):
 
 
 ###importation de ficher producteur
+# if not prodFile.name.endswith(('xlsx', 'xls', 'csv', 'ods')):
+#     messages.info(request, 'mauvais format')
+#     return redirect('cooperatives:producteurs')
+# else:
+#     fs = FileSystemStorage()
+#     filename = fs.save(prodFile.name, prodFile)
+#     uploaded_file_url = fs.url(filename)
+#     try:
+#         exceldata = pd.read_excel(fs.path(filename))
+#     except Exception as e:
+#         messages.info(request, 'Erreur de lecture de fichier Excel')
+#         fs.delete(filename)
+#         return redirect('cooperatives:producteurs')
+#     # Do something with the exceldata variable
+#     # ...
+#     return redirect('cooperatives:producteurs') 
+
 
 @login_required(login_url='connexion')
 def saveProdFile(request):
@@ -2953,9 +2970,10 @@ def saveProdFile(request):
         else :
             fs = FileSystemStorage()
             filename = fs.save(prodFile.name, prodFile)
-            upload_url = fs.url(filename)
-            exceldata = pd.read_excel(filename)
+            uploaded_file_url = fs.url(filename)
             
+  
+            exceldata = pd.read_excel(fs.path(filename))
             if set(['code','nom','localite','section','nb_parcelle','genre','date_naissance','contact']).issubset(exceldata.columns) :
                 
                 for db in exceldata.itertuples() : 
@@ -2975,8 +2993,8 @@ def saveProdFile(request):
                                         cooperative_id = cooperative.id,
                                     )
                                 else :
-                                     producteur = get_object_or_404(Producteur,code = db.code)
-                                     objdata = ImportProdFileModel.objects.create(
+                                    producteur = get_object_or_404(Producteur,code = db.code)
+                                    objdata = ImportProdFileModel.objects.create(
                                         code = producteur.code,
                                         nom = producteur.nom,
                                         localite = producteur.localite,
@@ -3043,26 +3061,27 @@ def saveProdFile(request):
                                         cooperative_id = cooperative.id,
                                     )
                         
-                     
+                    
                     else :
-                         messages.info(request, 'Erreur les columns [code,nom,section,cooperative]  ont une ou plusieurs cases vide')
-                         return redirect('cooperatives:producteurs')
+                        messages.info(request, 'Erreur les columns [code,nom,section,cooperative]  ont une ou plusieurs cases vide')
+                        return redirect('cooperatives:producteurs')
             else : 
                 messages.info(request, 'Erreur dans sur les columns de votre fichier [code,nom,localite,section,cooperative,nb_parcelle,genre,date_naissance,contact]')
                 return redirect('cooperatives:producteurs')
-                        
+                    
 
-        listProd = ImportProdFileModel.objects.filter(etatValidate = "EN ATTENTE").filter(cooperative_id = cooperative.id)
-        #filename = fs.save(prodFile.name, prodFile)
-        filedel = fs.delete(prodFile.name)
+            listProd = ImportProdFileModel.objects.filter(etatValidate = "EN ATTENTE").filter(cooperative_id = cooperative.id)
+            #filename = fs.save(prodFile.name, prodFile)
+            filedel = fs.delete(prodFile.name)
 
-        context = {
-            'cooperative': cooperative,
-            'role':role,
-            'listProd':listProd
-        }
-        return render(request, 'historique/test.html',context)
-    
+            context = {
+                'cooperative': cooperative,
+                'role':role,
+                'listProd':listProd
+            }
+            return render(request, 'historique/test.html',context)
+            
+
 @api_view(['GET'])
 def importValidProd(request):
     cooperative = Cooperative.objects.get(utilisateur=request.user.utilisateur)
@@ -3173,10 +3192,16 @@ def prodTableFunction(request):
     if searchValue == "":
         # producteurs = Producteur.objects.filter(cooperative_id=cooperative).order_by(columnName)[:int(row)].values()
         producteurs = Producteur.objects.filter(cooperative_id=cooperative).order_by("-created_at")[int(row):int(row)+int(rowperpage)]
+        
         for prod in producteurs :
-           
+            if prod.image :
+                photo = '<td><img class="img-rounded" width="45" height="45" src="{0}" alt="{1}"></td>'.format(prod.image.url,prod.code)
+            else :
+                photo = '<img class="img-rounded" width="45" height="45" src="/static/img/Logo.jpg" alt="{0}">'.format(prod.code)
+            
+            
             item = {
-                # "image": prod.image.url,
+                "image": photo,
                 "code":prod.code,
                 "nom":prod.nom,
                 "genre":prod.genre,
@@ -3199,8 +3224,14 @@ def prodTableFunction(request):
                                                                              ).order_by("-created_at")[int(row):int(row)+int(rowperpage)]
         # producteurs = Producteur.objects.filter(cooperative_id=cooperative).filter(code__istartswith =searchValue).order_by(columnName)[int(row):int(rowperpage)].values()
         for prod in producteurs :
+            if prod.image :
+                photo = '<td><img class="img-rounded" width="45" height="45" src="{0}" alt="{1}"></td>'.format(prod.image.url,prod.code)
+            else :
+                photo = '<img class="img-rounded" width="45" height="45" src="/static/img/Logo.jpg" alt="{0}">'.format(prod.code)
+            
+            
             item = {
-                # "image": prod.image.url,
+                "image": photo,
                 "code":prod.code,
                 "nom":prod.nom,
                 "genre":prod.genre,

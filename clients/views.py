@@ -1171,6 +1171,12 @@ def prodClientTableFunction(request):
         for prod in producteurs :
             superficies = Parcelle.objects.filter(producteur=prod).aggregate(total=Sum('superficie'))['total']
             
+            if prod.image :
+                photo = '<td><img class="img-rounded" width="45" height="45" src="{0}" alt="{1}"></td>'.format(prod.image.url,prod.code)
+            else :
+                photo = '<img class="img-rounded" width="45" height="45" src="/static/img/Logo.jpg" alt="{0}">'.format(prod.code)
+            
+            
             if superficies:
                 superficies = "{:.2f}".format(superficies)
             else:
@@ -1178,6 +1184,7 @@ def prodClientTableFunction(request):
                 
                 
             item = {
+               "image":photo,
                "code": prod.code,
                "cooperative": prod.cooperative.sigle,
                "section": prod.section.libelle,
@@ -1201,6 +1208,12 @@ def prodClientTableFunction(request):
         for prod in producteurs :
             superficies = Parcelle.objects.filter(producteur=prod).aggregate(total=Sum('superficie'))['total']
             
+            if prod.image :
+                photo = '<td><img class="img-rounded" width="45" height="45" src="{0}" alt="{1}"></td>'.format(prod.image.url,prod.code)
+            else :
+                photo = '<img class="img-rounded" width="45" height="45" src="/static/img/Logo.jpg" alt="{0}">'.format(prod.code)
+            
+            
             if superficies:
                 superficies = "{:.2f}".format(superficies)
             else:
@@ -1208,6 +1221,7 @@ def prodClientTableFunction(request):
                 
                 
             item = {
+               "image":photo,
                "code": prod.code,
                "cooperative": prod.cooperative.sigle,
                "section": prod.section.libelle,

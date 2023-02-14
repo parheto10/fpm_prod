@@ -189,7 +189,7 @@
                                                     <th>ACTIONS</th>
                                                 </tr>
                                             </thead>
-                                            {% comment %} <tbody>
+                                             <tbody>
                                                 {% for coop in cooperatives %}
                                                     <tr class="odd gradeX text-center">
                                                         <td>{{ coop.region }}</td>
@@ -207,7 +207,7 @@
                                                         <td class="center"><a href="{% url 'clients:detail_coop' coop.pk %}" class="btn btn-primary btn-xs">Accéder</a></td>
                                                     </tr>
                                                 {% endfor %}
-                                            </tbody> {% endcomment %}
+                                            </tbody>  
                                         </table>
                                     </div>
                                 </div>
@@ -509,3 +509,12 @@
                     </div>
                     <!-- /.row -->
                 </div>
+
+
+<script>
+    $(document).ready(function() {
+        $('#dataTables-example').DataTable({
+            responsive: true
+        });
+    });
+</script>
