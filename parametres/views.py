@@ -154,6 +154,8 @@ def map_section(request):
 
         templateStr = render_to_string("cooperatives/carte_coop.html", context)
         return JsonResponse({'templateStr': templateStr, 'id': id, 'id_coop': id_coop}, safe=False)
+    else :
+        print(id_coop)
 
 
 @api_view(['GET'])
