@@ -1400,6 +1400,8 @@ def folium_palntings_map(request):
     return render(request, "cooperatives/folium_planting_map.html", context)
 
 
+
+@login_required(login_url='connexion')
 @api_view(['GET'])
 def getParcelleCoop(request, pk=None):
     cooperative = Cooperative.objects.get(id=pk)
@@ -1412,8 +1414,8 @@ def getParcelleCoop(request, pk=None):
 
 
 #parcelle par cooperative sur la carte
-
-@api_view(['GET'])
+@login_required(login_url='connexion')
+@api_view(['GET']) 
 def map_by_cooperative(request):
     coop_connect = Cooperative.objects.get(utilisateur=request.user.utilisateur)
     sections  = Section.objects.filter(cooperative_id = coop_connect.id)
@@ -1484,7 +1486,7 @@ def edit_monitoring(request):
 
 #FIN DE EN MAINTENANCE
 
-
+@login_required(login_url='connexion')
 @api_view(['GET'])
 def prod_update(request,code=None):
     d_date = 1
@@ -1502,6 +1504,7 @@ def prod_update(request,code=None):
     templateStr = render_to_string("cooperatives/prod_edt.html", context)
     return JsonResponse({'templateStr':templateStr,'id':code},safe=False)
 
+@login_required(login_url='connexion')
 @api_view(['POST'])
 def edit_productor(request):
     code = request.POST['instance_id']
@@ -1516,7 +1519,7 @@ def edit_productor(request):
             return JsonResponse({"errors":form.errors,"danger": "Modification incorrect"},safe=False)
 
 
-
+@login_required(login_url='connexion')
 @api_view(['GET'])
 def edit_formatoin(request,id=None):
     d_date = 1
@@ -1531,6 +1534,8 @@ def edit_formatoin(request,id=None):
     templateStr = render_to_string("cooperatives/edit_formation.html", context)
     return JsonResponse({'templateStr':templateStr,'id':id},safe=False)
 
+
+@login_required(login_url='connexion')
 @api_view(['POST'])
 def update_formation(request):
     id = request.POST['instance_id']
@@ -1546,6 +1551,8 @@ def update_formation(request):
             return JsonResponse({"errors":form.errors,"danger": "Modification incorrect"},safe=False)
 
 
+
+@login_required(login_url='connexion')
 @api_view(['GET'])
 def edit_parcelle(request, code=None):
     d_date = 1
@@ -1562,6 +1569,7 @@ def edit_parcelle(request, code=None):
 
 
 
+@login_required(login_url='connexion')
 @api_view(['POST'])
 def parcelle_update(request):
     code = request.POST['instance_id']
@@ -1594,7 +1602,7 @@ def parcelle_update(request):
 #    return render(request, "cooperatives/section_edit.html", context)
 
 
-
+@login_required(login_url='connexion')
 @api_view(['GET'])
 def edit_section(request, id=None):
     d_date = 1
@@ -1610,6 +1618,8 @@ def edit_section(request, id=None):
     templateStr = render_to_string("cooperatives/section_edit.html", context)
     return JsonResponse({'templateStr':templateStr,'id':id},safe=False)
 
+
+@login_required(login_url='connexion')
 @api_view(['POST'])
 def update_section(request):
     id = request.POST['instance_id']
@@ -1625,12 +1635,13 @@ def update_section(request):
         return JsonResponse({"errors":form.errors,"danger": "Modification incorrect"},safe=False)
 
 
-
+@login_required(login_url='connexion')
 def delete_section(request,id=None):
     section = get_object_or_404(Section, id=id)
     section.delete()
 
 
+@login_required(login_url='connexion')
 @api_view(['GET'])
 def edit_sous_section(request, id=None):
     d_date = 1
@@ -1648,6 +1659,7 @@ def edit_sous_section(request, id=None):
     return JsonResponse({'templateStr':templateStr,'id':id},safe=False)
 
 
+@login_required(login_url='connexion')
 @api_view(['POST'])
 def update_sous_section(request):
     id = request.POST['instance_id']
@@ -1663,12 +1675,14 @@ def update_sous_section(request):
         return JsonResponse({"errors":form.errors,"danger": "Modification incorrect"},safe=False)
 
 
-
+@login_required(login_url='connexion')
 def delete_sous_section(request,id=None):
     item = get_object_or_404(Sous_Section, id=id)
     item.delete()
 
 
+
+@login_required(login_url='connexion')
 def monitoringSave(request):
     #print(request.POST['planting'])
        espece = request.POST.getlist('espece')
@@ -1745,6 +1759,7 @@ def monitoringSave(request):
 
 
 
+@login_required(login_url='connexion')
 def espece_monitoring_view(request,code=None):
     monitoring = get_object_or_404(Monitoring, code=code)
     detail_monitoring = get_object_or_404(DetailMonitoring, monitoring_id=code)
@@ -1759,6 +1774,8 @@ def espece_monitoring_view(request,code=None):
     return JsonResponse({'templateStr':templateStr},safe=False)
 
 
+
+@login_required(login_url='connexion')
 def plantingSave(request):
     espece = request.POST.getlist('espece')
     nb_plante = request.POST.getlist('nb_plante')
@@ -1821,7 +1838,7 @@ def plantingSave(request):
         return JsonResponse({"errors":plantingForm.errors,"danger": "Enregistrement incorrect"},safe=False)
 
 
-
+@login_required(login_url='connexion')
 def producteurSave(request):
 
     cooperative = Cooperative.objects.get(utilisateur=request.user.utilisateur)
@@ -1907,6 +1924,7 @@ def tranning(request,id=None):
     return render(request, 'cooperatives/formations/insert.html', context)
 
 
+@login_required(login_url='connexion')
 def saveParticipant(request):
     cooperative = Cooperative.objects.get(utilisateur=request.user.utilisateur)
 

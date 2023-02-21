@@ -68,12 +68,148 @@
             height:100%;
             background-color:#000;
         }
+        .navbar-header {
+          float: left;
+      }
+      
+      .navbar-left {
+          float: left;
+      }
+      
+      .navbar-right {
+          text-align: right;
+      }
+      
+      .navbar-top-links {
+          margin: 0;
+      }
+      
+      .navbar-top-links li {
+          display: inline-block;
+      }
+      
+      .navbar-top-links li:last-child {
+          margin-right: 6px;
+      }
+      
+      .navbar-top-links li a {
+          padding: 15px;
+          min-height: 50px;
+      }
+      
+      .navbar-top-links>li>a {
+          color: #fff;
+      }
+      
+      .navbar-top-links>li>a:hover, .navbar-top-links>li>a:focus, .navbar-top-links>.open>a, .navbar-top-links>.open>a:hover, .navbar-top-links>.open>a:focus {
+          color: #fff;
+          background-color: #5cb85c;
+      }
+      
+      .navbar-inverse .navbar-brand{
+          color: white;
+      }
+      
+      .navbar-top-links .dropdown-menu li {
+          display: block;
+      }
+      
+      .navbar-top-links .dropdown-menu li:last-child {
+          margin-right: 0;
+      }
+      
+      .navbar-top-links .dropdown-menu li a {
+          padding: 3px 20px;
+          min-height: 0;
+      }
+      
+      .navbar-top-links .dropdown-menu li a div {
+          white-space: normal;
+      }
+      
+      .navbar-top-links .dropdown-messages,
+      .navbar-top-links .dropdown-tasks,
+      .navbar-top-links .dropdown-alerts {
+          width: 310px;
+          min-width: 0;
+      }
+      
+      .navbar-top-links .dropdown-messages {
+          margin-left: 5px;
+      }
+      
+      .navbar-top-links .dropdown-tasks {
+          margin-left: -59px;
+      }
+      
+      .navbar-top-links .dropdown-alerts {
+          margin-left: -123px;
+      }
+      
+      .navbar-top-links .dropdown-user {
+          right: 0;
+          left: auto;
+      }
         </style>
         <title>Agro-Map | Parcelles</title>
     </head>
 
     <body>
-        <div id="inputs" class="leaflet-control inputs" >
+      <nav class="navbar navbar-inverse navbar-fixed-top " role="navigation" style="background-color:rgb(165, 194, 177);" >
+        <div class="navbar-header"  >
+          <a class="navbar-brand" href="{% url 'cooperatives:dashboard' %}">{{ coop_connect.sigle }}</a>
+
+        </div>
+
+   
+
+      <div class="col-md-2" >
+        <div class="form-group" style="margin-top: 5px;">
+          <select id="section_coop" class="form-control" onchange="viewMapSectionCoop(this.options[this.selectedIndex].value, '{% url 'map_section' %}' )"   class="form-select form-select-lg mb-3 secta"  aria-label=".form-select-sm example">
+              <option value="">Toutes les sections</option>
+              {% for section in sections %}
+                <option value="{{section.id}}">{{section.libelle}}</option>
+              {% endfor %}
+          </select>
+        </div>
+      </div>
+        <!-- <select id="section_coop" onchange="viewMapSectionCoop(this.options[this.selectedIndex].value, '{% url 'map_section' %}' )"   class="form-select form-select-lg mb-3 secta"  aria-label=".form-select-sm example">
+          <option value="">Toutes les sections</option>
+       {% for section in sections %}
+          <option value="{{section.id}}">{{section.libelle}}</option>
+       {% endfor %}
+
+        </select> -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+      </button>
+      <ul class="nav navbar-right navbar-top-links">
+        
+        <div class="searching leaflet-control inputs" >
+          <input type="text" id="recherche" placeholder="Entrer code parcelle" name="search">
+          <button type="submit" onclick="searchingParcelle('{% url 'searching_parcelle' %}')" ><i class="fa fa-search"></i></button>
+        </div>
+
+        <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            <i class="fa fa-user fa-fw" style="font-size: 18px; font-weight: bold; text-transform: uppercase;"></i> {{ user.username }} <b class="caret"></b>
+          </a>
+
+
+          <ul class="dropdown-menu dropdown-user">
+            <li>
+              <a href="{% url 'logout' %}">
+                <i class="fa fa-sign-out fa-fw"></i> Déconnexion
+              </a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+      </nav>
+        <!-- <div id="inputs" class="leaflet-control inputs" >
             <a  class="btn btn-primary" href="{% url 'cooperatives:dashboard' %} " onclick="window.close()">Retour</a>
 
               <select id="section_coop" onchange="viewMapSectionCoop(this.options[this.selectedIndex].value, '{% url 'map_section' %}' )"   class="form-select form-select-lg mb-3 secta"  aria-label=".form-select-sm example">
@@ -92,11 +228,11 @@
         <div class="searching leaflet-control inputs" >
           <input type="text" id="recherche" placeholder="Entrer code parcelle" name="search">
           <button type="submit" onclick="searchingParcelle('{% url 'searching_parcelle' %}')" ><i class="fa fa-search"></i></button>
-      </div>
+      </div> -->
 
 
 
-        <div id="weathermap">
+        <div id="weathermap" style="margin-top: 54px;">
 
         <div id="map">
 
@@ -141,7 +277,8 @@
 
      .searching{
         float: right;
-        margin-left: 855px;
+        margin-left: 1150px;
+        margin-top: 5px;
     }
 
         #inputs #cooperative {
@@ -213,7 +350,7 @@
 
 
 Promise.all([
-  fetch("https://akidompro.pythonanywhere.com/api/v1/coop_parcelles/"+id),
+  fetch("http://127.0.0.1:8000/api/v1/coop_parcelles/"+id),
 ]).then(async ([response1]) => {
   const responseData1 = await response1.json();
 
@@ -268,7 +405,7 @@ data1.forEach(({ code,producteur,latitude, longitude, certification, culture, su
                 <tr>
                     <th scope="col"><b>SUIVIS</b></th>
                     <td class="text-uppercase text-center">
-                        <a class="btn btn-default " style="padding: 1px 8px 1px 8px;" href="#" title="voir" onclick="show_planting('https://akidompro.pythonanywhere.com/show_planting/${code}')" ><i class="glyphicon glyphicon-eye-open"></i></a>
+                        <a class="btn btn-default " style="padding: 1px 8px 1px 8px;" href="#" title="voir" onclick="show_planting('http://127.0.0.1:8000/show_planting/${code}')" ><i class="glyphicon glyphicon-eye-open"></i></a>
                     </td>
                 </tr>
             </tbody>
@@ -394,17 +531,17 @@ function viewMapSectionCoop(ids ,url){
                 iconAnchor: [10, 41],
                 popupAnchor: [2, -40],
                 iconUrl: "https://unpkg.com/leaflet@1.6/dist/images/marker-icon.png",
-                // iconUrl: "https://akidompro.pythonanywhere.com/static/img/icons/my_icon1.png",
+                // iconUrl: "http://127.0.0.1:8000/static/img/icons/my_icon1.png",
                 shadowUrl: "https://unpkg.com/leaflet@1.6/dist/images/marker-shadow.png",
-                // // shadowUrl: "https://akidompro.pythonanywhere.com/static/img/icons/my_icon1.png"
+                // // shadowUrl: "http://127.0.0.1:8000/static/img/icons/my_icon1.png"
               });
 
 
               if(response.id != "" && response.id_coop != ""){
 
                 Promise.all([
-                  fetch("https://akidompro.pythonanywhere.com/api/v1/section_parcelles/"+response.id),
-                //  fetch("https://akidompro.pythonanywhere.com/api/parcelles?format=json")
+                  fetch("http://127.0.0.1:8000/api/v1/section_parcelles/"+response.id),
+                //  fetch("http://127.0.0.1:8000/api/parcelles?format=json")
                 ]).then(async ([response1]) => {
                   const responseData1 = await response1.json();
                   //  const responseData2 = await response2.json();
@@ -460,7 +597,7 @@ function viewMapSectionCoop(ids ,url){
                                 <tr>
                                     <th scope="col"><b>SUIVIS</b></th>
                                     <td class="text-uppercase text-center">
-                                        <a class="btn btn-default " style="padding: 1px 8px 1px 8px;" href="#" title="voir" onclick="show_planting('https://akidompro.pythonanywhere.com/show_planting/${code}')" ><i class="glyphicon glyphicon-eye-open"></i></a>
+                                        <a class="btn btn-default " style="padding: 1px 8px 1px 8px;" href="#" title="voir" onclick="show_planting('http://127.0.0.1:8000/show_planting/${code}')" ><i class="glyphicon glyphicon-eye-open"></i></a>
                                     </td>
                                 </tr>
                             </tbody>
@@ -480,8 +617,8 @@ function viewMapSectionCoop(ids ,url){
 
               }else if(response.id == "" && response.id_coop != ""){
                 Promise.all([
-                  fetch("https://akidompro.pythonanywhere.com/api/v1/coop_parcelles/"+response.id_coop),
-                //  fetch("https://akidompro.pythonanywhere.com/api/parcelles?format=json")
+                  fetch("http://127.0.0.1:8000/api/v1/coop_parcelles/"+response.id_coop),
+                //  fetch("http://127.0.0.1:8000/api/parcelles?format=json")
                 ]).then(async ([response1]) => {
                   const responseData1 = await response1.json();
                   //  const responseData2 = await response2.json();
@@ -537,7 +674,7 @@ function viewMapSectionCoop(ids ,url){
                                 <tr>
                                     <th scope="col"><b>SUIVIS</b></th>
                                     <td class="text-uppercase text-center">
-                                        <a class="btn btn-default " style="padding: 1px 8px 1px 8px;" href="#" title="voir" onclick="show_planting('https://akidompro.pythonanywhere.com/show_planting/${code}')" ><i class="glyphicon glyphicon-eye-open"></i></a>
+                                        <a class="btn btn-default " style="padding: 1px 8px 1px 8px;" href="#" title="voir" onclick="show_planting('http://127.0.0.1:8000/show_planting/${code}')" ><i class="glyphicon glyphicon-eye-open"></i></a>
                                     </td>
                                 </tr>
                             </tbody>

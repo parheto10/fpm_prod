@@ -73,28 +73,86 @@
     </head> 
 
     <body>
-        <div id="inputs" class="leaflet-control inputs" >
+
+        <!--<div id="inputs" class="leaflet-control inputs" >
             <select id="cooperative"   class="form-select form-select-lg mb-3" onchange="viewMapCoop(this.options[this.selectedIndex].value, '{% url 'map_cooperative' %}' )" aria-label=".form-select-sm example">
                 <option value="" selected>Cooperatives/Communautés</option>
                 {% for cooperative in cooperatives %}
                 <option value="{{ cooperative.id }}">{{ cooperative.sigle }}</option>
                 {% endfor %}
-              </select>
+            </select>
 
-              <select id="section" onchange="viewMapSection(this.options[this.selectedIndex].value, '{% url 'map_section' %}' )" style="display:none;"   class="form-select form-select-lg mb-3 secta"  aria-label=".form-select-sm example">
+            <select id="section" onchange="viewMapSection(this.options[this.selectedIndex].value, '{% url 'map_section' %}' )" style="display:none;"   class="form-select form-select-lg mb-3 secta"  aria-label=".form-select-sm example">
 
 
             </select>
-            <!--<div class="searching" >-->
+            <div class="searching" >-->
             <!--    <input type="text" id="recherche" placeholder="Entrer code parcelle" name="search">-->
             <!--    <button type="submit" onclick="searchingParcelle('{% url 'searching_parcelle' %}')" ><i class="fa fa-search"></i></button>-->
-            <!--</div>-->
+            <!--</div>
 
-        </div>
+        </div>-->
+        
+        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" style="background-color:rgb(165, 194, 177);">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="{% url 'clients:dashboard' %}" style="color:#000">CARTE - {{ user.username | upper }}</a> 
+            </div>
+            <div class="col-md-2"  >
+                <div  style="margin-top: 5px;">
+                    <select   class="form-control form-select-lg mb-3" id="cooperative" onchange="viewMapCoop(this.options[this.selectedIndex].value, '{% url 'map_cooperative' %}' )" aria-label=".form-select-sm example">
+                        <option value="" selected>Cooperatives/Communautés</option>
+                        {% for cooperative in cooperatives %}
+                        <option value="{{ cooperative.id }}">{{ cooperative.sigle }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-2"  >
+                <div  style="margin-top: 5px;">
+                    <select id="section"   onchange="viewMapSection(this.options[this.selectedIndex].value, '{% url 'map_section' %}' )" style="display:none;"   class="form-control form-select-lg mb-3 secta"  aria-label=".form-select-sm example">
+
+
+                    </select>
+                </div>
+            </div>
+
+
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+              
+            <ul class="nav navbar-right navbar-top-links" style="margin-right:15px;">
+        
+                <!-- <div class="searching leaflet-control inputs" >
+                  <input type="text" id="recherche" placeholder="Entrer code parcelle" name="search">
+                  <button type="submit" onclick="searchingParcelle('{% url 'searching_parcelle' %}')" ><i class="fa fa-search"></i></button>
+                </div> -->
+        
+                <li class="dropdown">
+                  <a class="dropdown-toggle" data-toggle="dropdown" href="#" style="color:#000">
+                    <i class="fa fa-user fa-fw" style="font-size: 18px; font-weight: bold; text-transform: uppercase;"></i> {{ user.username }} <b class="caret"></b>
+                  </a>
+        
+ 
+                  <ul class="dropdown-menu dropdown-user">
+                    <li>
+                      <a href="{% url 'logout' %}">
+                        <i class="fa fa-sign-out fa-fw"></i> Déconnexion
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+
+        </nav>
 
 
 
-        <div id="weathermap">
+        <div id="weathermap" style="margin-top: 50px;">
 
         <div id="map">
 

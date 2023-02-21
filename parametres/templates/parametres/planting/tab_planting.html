@@ -25,9 +25,9 @@
                             <td class="text-center">{{ planting.campagne.titre }}</td>
                             <td class="text-center">{{ planting.plant_recus }}</td>
                             <td class="text-uppercase text-center">
-                                <a class="btn btn-success" href="#" onclick="show_espece('https://akidompro.pythonanywhere.com/api/v1/map_plantings_espece/{{planting.code}}')"   role="button"><i class="glyphicon glyphicon-tree-deciduous"></i></a>
+                                <a class="btn btn-success" href="#" onclick="show_espece('{% url 'map_plantings_espece' planting.code %}')"    role="button"><i class="glyphicon glyphicon-tree-deciduous"></i></a>
                             </td>
-                            <td class="text-center"><a href="#" class="btn btn-primary" onclick="show_monitoring('https://akidompro.pythonanywhere.com/show_monitoring/{{planting.code}}')" title="detail" style="padding: 3px; padding-top:3px " >
+                            <td class="text-center"><a href="#" class="btn btn-primary" onclick="show_monitoring('{% url 'show_monitoring' planting.code %}')" title="detail" style="padding: 3px; padding-top:3px " >
                               <i class="fa fa-eye"></i>
                                 </a>
                             </td>
