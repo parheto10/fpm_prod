@@ -29,9 +29,17 @@
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <script src="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
 
+<script src="{% static 'js/select2/select2.full.min.js' %}"></script>
 <!--<script src="https://shipping.pankart.store/resources/views/pages/js/intlTelInput.js"></script>-->
 
 <script>
+    $('.select2').select2();
+
+    //Initialize Select2 Elements
+    $('.select2bs4').select2({
+      theme: 'bootstrap4'
+    });
+
     $(document).ready(function() {
         $('#dataTables-example').DataTable({
             responsive: true

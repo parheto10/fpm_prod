@@ -121,13 +121,18 @@
                                             <div class="col-lg-6">
                                                 <div class="form-group">
                                                     <label for="parcelle">Producteur Parcelle</label>
-                                                    <input type="text" list="parcelle" name="parcelle"   placeholder="Code parcelle..." class="form-control">
+                                                    <select class="form-control select2" style="width: 100%;">
+                                                    {% for parc in parcelles %}
+                                                        <option value="{{ parc.code }}">{{ parc.producteur.nom }}</option>
+                                                    {% endfor %}
+                                                      </select>
+                                                   <!-- <input type="text" list="parcelle" name="parcelle"   placeholder="Code parcelle..." class="form-control">
                                                     <span class="parcelle_error text-danger"></span>
                                                     <datalist id="parcelle">
                                                         {% for parc in parcelles %}
-                                                            <option value="{{ parc.code }}">{{ parc.code }}</option>
+                                                            <option value="{{ parc.code }}">{{ parc.producteur.nom }}</option>
                                                         {% endfor %}
-                                                    </datalist>
+                                                    </datalist>-->
 
 
                                                 </div>
