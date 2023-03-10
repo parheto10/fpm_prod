@@ -302,16 +302,16 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <script src="{% static 'js/jquery.min.js' %}"></script>
         {% if user.id == 3 %}
-        <script src="{% static 'js/projectjs/shape_cargill.js' %}"></script>
+        <script src="{% static 'js/projectjs/cargill/shape_cargill.js' %}"></script>
         {% elif user.id == 90 %}
-        <script src="{% static 'js/projectjs/shape_bf.js' %}"></script>
+        <script src="{% static 'js/projectjs/blueforest/shape_bf.js' %}"></script>
         {% elif user.id == 55 %}
-        <script src="{% static 'js/projectjs/shape_karidja.js' %}"></script>
+        <script src="{% static 'js/projectjs/karidja/shape_karidja.js' %}"></script>
 
         {% elif user.id == 37 %}
-        <script src="{% static 'js/projectjs/agromap/shape_cargill.js' %}"></script>
-        <script src="{% static 'js/projectjs/agromap/shape_bf.js' %}"></script>
-        <script src="{% static 'js/projectjs/agromap/shape_karidja.js' %}"></script>
+        <script src="{% static 'js/projectjs/agromap/cargill/shape_cargill.js' %}"></script>
+        <script src="{% static 'js/projectjs/agromap/blueforest/shape_bf.js' %}"></script>
+        <script src="{% static 'js/projectjs/agromap/karidja/shape_karidja.js' %}"></script>
         <script src="{% static 'js/projectjs/agromap/agro_geojson.js' %}"></script>
         {% endif %}
         <script src="{% static 'js/bootstrap.min.js' %}"></script>
@@ -322,20 +322,19 @@
         <script src="{% static 'js/leaflet.markercluster.js' %}"></script>
         <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 
-{#        <script src="{% static 'js/index_parif.js' %}"></script>#}
             {% if not cluster %}
                 {% if user.id == 37 %}
                 <script src="{% static 'js/projectjs/agromap/index_planting_parif.js' %}"></script>
                 {% else %}
-                <script src="{% static 'js/index_planting_parif.js' %}"></script>
+                <script src="{% static 'js/carte/index_planting_parif.js' %}"></script>
                 {% endif %}
      
             {% else %}
-            <script src="{% static 'js/index_planting_cluster.js' %}"></script>
+            <script src="{% static 'js/carte/index_planting_cluster.js' %}"></script>
             {% endif %}
-        <script src="{% static 'js/index_parif_coop.js' %}"></script>
-        <script src="{% static 'js/index_parif_section.js' %}"></script>
-        <script src="{% static 'js/index_searching_parcelle.js' %}"></script>
+        <script src="{% static 'js/carte/index_parif_coop.js' %}"></script>
+        <script src="{% static 'js/carte/index_parif_section.js' %}"></script>
+        <script src="{% static 'js/carte/index_searching_parcelle.js' %}"></script>
         <script src="{% static 'js/Web-GIS.js' %}"></script>
 
        

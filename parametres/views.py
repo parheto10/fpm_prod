@@ -1201,7 +1201,6 @@ def api_planting(request):
     parcelles = Parcelle.objects.filter(producteur__cooperative__utilisateur=request.user.utilisateur).exclude(latitude="").exclude(longitude="")
     serializer = ParcelleSerializer(parcelles, many=True)
     nb = parcelles.count()
-    print(nb)
     return Response(serializer.data)
 
 @api_view(['GET'])

@@ -16,9 +16,10 @@ Promise.all([
   const data1 = responseData1;
 //   console.log(data1);
 
-//   const plantings = L.featureGroup().addTo(map);
-  const marker = L.markerClusterGroup();
-  const plantings = L.geoJSON();
+   //const plantings = L.featureGroup().addTo(map);
+   const marker = L.markerClusterGroup();
+   const plantings = L.geoJSON();
+
 
     data1.forEach(({ code, producteur , latitude, longitude, certification, culture, superficie  }) => {
 
@@ -82,7 +83,7 @@ Promise.all([
   plantings.addTo(marker);
   marker.addTo(map);
 
-//  map.fitBounds(plantings.getBounds());
+ map.fitBounds(plantings.getBounds());
 });
 
 //Initialisation de la Map

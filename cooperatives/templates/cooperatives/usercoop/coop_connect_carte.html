@@ -337,6 +337,7 @@
         <script src="{% static 'js/leaflet.markercluster.js' %}"></script>
         <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 
+        {% include '_partials/shapeConfig.html' %}
         <script>
  var id = {{coop_connect.id}};
   const icon = L.icon({
@@ -355,10 +356,10 @@ Promise.all([
   const responseData1 = await response1.json();
 
   const data1 = responseData1;
-  console.log(data1);
 
 
-  const plantings = L.featureGroup().addTo(map);
+  const marker = L.markerClusterGroup();
+  const plantings = L.geoJSON();
 
 data1.forEach(({ code,producteur,latitude, longitude, certification, culture, superficie  }) => {
 
@@ -417,7 +418,8 @@ data1.forEach(({ code,producteur,latitude, longitude, certification, culture, su
       )
     );
   });
-
+  plantings.addTo(marker);
+  marker.addTo(map);
 //  map.fitBounds(plantings.getBounds());
 });
 
@@ -482,10 +484,23 @@ var markers = L.markerClusterGroup({
     }
 });
 
+var shapeCargill = L.geoJSON(shape, {
+  onEachFeature: function (feature, layer) {
+      layer.bindPopup('<strong> Contours parcelle</strong>')
+  },
+  style : {
+      fillColor: 'grey',
+      'fillOpacity': 0.1,
+      color:'red'
+  }
+}).addTo(map);
+
 var overLayMaps = {
- // 'VILLES' : marker,
- // 'ABIDJAN': singleMarker
+'SHAPES ' : shapeCargill,
+// 'ABIDJAN': singleMarker
 }
+
+
 L.control.layers(baseMaps, overLayMaps, {collapse :false, position: 'topleft'}).addTo(map);
 
 
@@ -550,7 +565,8 @@ function viewMapSectionCoop(ids ,url){
                   //  const data2 = responseData2;
                     console.log(data1)
 
-                    const plantings = L.featureGroup().addTo(map);
+                    const marker = L.markerClusterGroup();
+                    const plantings = L.geoJSON();
 
                     data1.forEach(({ code,producteur,latitude, longitude, certification, culture, superficie  }) => {
 
@@ -610,7 +626,9 @@ function viewMapSectionCoop(ids ,url){
                         )
                       );
                     });
-                  map.fitBounds(plantings.getBounds());
+                    plantings.addTo(marker);
+                    marker.addTo(map);
+                 // map.fitBounds(plantings.getBounds());
                 });
 
 
@@ -625,9 +643,11 @@ function viewMapSectionCoop(ids ,url){
 
                     const data1 = responseData1;
                   //  const data2 = responseData2;
-                  console.log(data1)
+                 // console.log(data1)
 
-                    const plantings = L.featureGroup().addTo(map);
+                    //const plantings = L.featureGroup().addTo(map);
+                    const marker = L.markerClusterGroup();
+                    const plantings = L.geoJSON();
 
                     data1.forEach(({ code,producteur,latitude, longitude, certification, culture, superficie  }) => {
 
@@ -685,14 +705,16 @@ function viewMapSectionCoop(ids ,url){
                         )
                       );
                     });
-                  map.fitBounds(plantings.getBounds());
+                  //map.fitBounds(plantings.getBounds());
+                  plantings.addTo(marker);
+                  marker.addTo(map);
                 });
               }
 
 
 
             //Initialisation de la Map
-            var map = L.map('map').setView([7.539989, -5.547080], 15);
+            var map = L.map('map').setView([7.539989, -5.547080], 7);
             map.zoomControl.setPosition('topright');
 
             var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -751,10 +773,23 @@ function viewMapSectionCoop(ids ,url){
                 }
             });
 
-            var overLayMaps = {
-             // 'VILLES' : marker,
-             // 'ABIDJAN': singleMarker
-            }
+            var shapeCargill = L.geoJSON(shape, {
+              onEachFeature: function (feature, layer) {
+                  layer.bindPopup('<strong> Contours parcelle</strong>')
+              },
+              style : {
+                  fillColor: 'grey',
+                  'fillOpacity': 0.1,
+                  color:'red'
+              }
+          }).addTo(map);
+      
+      var overLayMaps = {
+        'SHAPES ' : shapeCargill,
+       // 'ABIDJAN': singleMarker
+      }
+
+           
             L.control.layers(baseMaps, overLayMaps, {collapse :false, position: 'topleft'}).addTo(map);
              // Ajouter Mode plein Ecran
    var mapId = document.getElementById('map');
@@ -803,7 +838,7 @@ function viewMapSectionCoop(ids ,url){
 
 </script>
 
- <script src="{% static 'js/index_parif_section.js' %}"></script>
+ <script src="{% static 'js/carte/index_parif_section.js' %}"></script>
 
 
  <script>
@@ -912,7 +947,7 @@ function show_planting(url){
         <script src="{% static 'js/Web-GIS.js' %}"></script>
         <script type="text/javascript" src="{% static 'js/loaders/blockui.min.js' %}"></script>
         <script src="{% static 'js/jquery.blockUI.js' %}"></script>
-        <script src="{% static 'js/index_searching_parcelle.js' %}"></script>
+        <script src="{% static 'js/carte/index_searching_parcelle.js' %}"></script>
         <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
     </body>

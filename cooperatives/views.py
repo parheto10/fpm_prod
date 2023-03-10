@@ -1419,7 +1419,7 @@ def getParcelleCoop(request, pk=None):
 def map_by_cooperative(request):
     coop_connect = Cooperative.objects.get(utilisateur=request.user.utilisateur)
     sections  = Section.objects.filter(cooperative_id = coop_connect.id)
-    context = {
+    context = { 
         "coop_connect":coop_connect,
         "sections": sections
     }
@@ -3395,6 +3395,21 @@ def plantTableFunction(request):
                 }
                 
                 arrayPlant.append(item)
+            else:
+                item = {
+                    "producteur" : plant.parcelle.producteur.nom,
+                    "parcelle" : plant.parcelle.code,
+                    "existant" : plant.nb_plant_exitant,
+                    "recus" : plant.plant_recus,
+                    "total" : plant.plant_recus + plant.nb_plant_exitant,
+                    "date" : plant.date,
+                    "action" : '<a href="{0}" class="btn btn-success">suivi <i class="fa fa-chevron-right"></i></a>'.format(
+                        reverse('cooperatives:suivi_planting', args=[plant.code]),
+                    )
+                    
+                }
+                
+                arrayPlant.append(item)
                 
     else:
 
@@ -3412,6 +3427,21 @@ def plantTableFunction(request):
                     "existant" : plant.nb_plant_exitant,
                     "recus" : nbplant,
                     "total" : nbplant + plant.nb_plant_exitant,
+                    "date" : plant.date,
+                    "action" : '<a href="{0}" class="btn btn-success">suivi <i class="fa fa-chevron-right"></i></a>'.format(
+                        reverse('cooperatives:suivi_planting', args=[plant.code]),
+                    )
+                    
+                }
+                
+                arrayPlant.append(item)
+            else:
+                item = {
+                    "producteur" : plant.parcelle.producteur.nom,
+                    "parcelle" : plant.parcelle.code,
+                    "existant" : plant.nb_plant_exitant,
+                    "recus" : plant.plant_recus,
+                    "total" : plant.plant_recus + plant.nb_plant_exitant,
                     "date" : plant.date,
                     "action" : '<a href="{0}" class="btn btn-success">suivi <i class="fa fa-chevron-right"></i></a>'.format(
                         reverse('cooperatives:suivi_planting', args=[plant.code]),
