@@ -65,6 +65,10 @@ def client_index(request):
     Superficie = 0
     nb_producteurs = 0
     Total_plant = 0
+    AllCooperatives =""
+    prod_coop = 0
+    section_coop = 0
+    
 
     for cooperative in cooperatives :
 

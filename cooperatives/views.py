@@ -2574,7 +2574,7 @@ def getMonitoringForcoop(request):
 
 @api_view(['POST'])
 def createProducteurs(request):
-    # cooperative = Cooperative.objects.get(utilisateur=request.user.utilisateur)
+    #cooperative = Cooperative.objects.get(utilisateur=request.user.utilisateur)
     data = request.data
     if len(Producteur.objects.filter(code=data['code'])) == 0 :
         producteur = Producteur.objects.create(
@@ -2885,7 +2885,7 @@ def createEspecemonitoring(request):
         especeMoni.user_id = int(data['user_id'])
         especeMoni.save()
 
-##########################28/06/2022################MPI###################HISTORIQUE#############
+########################## 28/06/2022 ################ MPI ################### HISTORIQUE ##################################################
 
 @login_required(login_url='connexion')
 def view_historique(request):
