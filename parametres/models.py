@@ -242,6 +242,7 @@ class Espece(models.Model):
     accronyme = models.CharField(max_length=250, verbose_name="NOM SCIENTIFIQUE")
     libelle = models.CharField(max_length=250, verbose_name="NOM USUEL")
     densite = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="DENSITE SPECIFIQUE", default=0)
+    co2_annuel = models.DecimalField(max_digits=7, decimal_places=2, verbose_name="CO2/AN", default=0)
 
     def __str__(self):
         return '%s (%s)' %(self.libelle, self.accronyme)

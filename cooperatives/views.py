@@ -49,7 +49,7 @@ from parametres.serializers import DetailMonitoringSerializer, DetailsPlantingSe
 from .forms import CoopForm, EditProductionForm, MonitoringEspeceForm, ParticipantcoopForm, ProdForm, EditProdForm, ParcelleForm, RemplacementMonitoringForm, SectionForm, Sous_SectionForm, \
      FormationForm, DetailFormation, EditFormationForm, EditParcelleForm, Edit_Sous_SectionForm, MonitoringForm, \
     PlantingForm, DetailPlantingForm, ProductionForm
-from .models import Cooperative, DetailMonitoring, DetailPlantingRemplacement, ImportProdFileModel, MonitoringEspece, \
+from .models import CarboneStocke, Cooperative, DetailMonitoring, DetailPlantingRemplacement, ImportProdFileModel, MonitoringEspece, \
     MonitoringEspeceremplacement,MonitoringObsMobile, Participantcoop, Participantformation, RemplacementMonitoring, Section, Sous_Section, \
     Producteur, Parcelle, Planting, Formation, Detail_Formation, \
     DetailPlanting, Monitoring, Production, SyncHistorique
@@ -113,6 +113,9 @@ def coop_dashboard(request):
     if (Production.objects.filter(parcelle__producteur__cooperative_id=cooperative).filter(campagne="GRANDE").aggregate(total=Sum('qteProduct'))['total']) != None :
         grande_production = (Production.objects.filter(parcelle__producteur__cooperative_id=cooperative).filter(campagne="GRANDE").aggregate(total=Sum('qteProduct'))['total']) / 1000
 
+
+    nbreCOstock = CarboneStocke.objects.filter(parcelle_id__in = parcelles).aggregate(total=Sum('carboneStock'))['total'] / 1000
+    
     #petite_production = (Production.objects.filter(parcelle__producteur__cooperative_id=cooperative).filter(campagne="PETITE").aggregate(total=Sum('qteProduct'))['total']) / 1000
     #grande_production = (Production.objects.filter(parcelle__producteur__cooperative_id=cooperative).filter(campagne="GRANDE").aggregate(total=Sum('qteProduct'))['total']) / 1000
     #production_section = Production.objects.filter(parcelle__producteur__section_id=section)
@@ -146,7 +149,8 @@ def coop_dashboard(request):
     'petite_production': petite_production,
     'grande_production': grande_production,
     'activate':activate,
-    'role':role
+    'role':role,
+    'nbreCOstock':nbreCOstock
     # 'labels': labels,
     # 'data': data,
     # 'mylabels': mylabels,
@@ -1048,6 +1052,7 @@ def CoopPlantings(request):
     parcelles = Parcelle.objects.filter(producteur__cooperative_id=cooperative)
     #print(parcelles)
     especes  = Espece.objects.all()
+        
     activate = "plantings"
     # especes = Espece.objects.all()
     campagnes = Campagne.objects.all()
@@ -1692,7 +1697,7 @@ def monitoringSave(request):
        recus = request.POST.getlist('recus')
        #print(detailplanting)
 
-       #tot_mature = 0
+       #tot_mature = 0 
        tot_mort = 0
        tot_recus = 0
 
@@ -1751,6 +1756,24 @@ def monitoringSave(request):
                monitoring.mort_global = tot_recus - tot_mort
                monitoring.mature_global = tot_mort
                monitoring.save()
+               
+               # CALCUL DU STOCK DE CARBONE  ##################################
+               pl_code = request.POST['planting']
+               
+               planting = get_object_or_404(Planting, code = pl_code)
+               
+               ## CALCUL ANNEE DE PEUPLEMENT
+               anneePeuplement = monitoring.date.year - planting.date.year
+               
+               for es, mt in zip(espece,mort):
+                   especeItem = get_object_or_404(Espece, id=int(es))
+                   carbone = CarboneStocke()
+                   carbone.monitoring_id = monitoring.code
+                   carbone.espece_id = especeItem.id
+                   carbone.parcelle_id = planting.parcelle.code 
+                   carbone.nbreAnne = int(anneePeuplement)
+                   carbone.carboneStock = (int(mt)*float(especeItem.co2_annuel)*int(anneePeuplement))*0.001
+                   carbone.save()             
 
 
                return JsonResponse({"msg": "Monitoring effectué avec succes !","status":200},safe=False)
@@ -2178,6 +2201,17 @@ def RemplaceSave(request):
     monitoring.mort_global = tot_mort - tot_remplacer
     monitoring.mature_global =  monitoring.mature_global + tot_remplacer
     monitoring.save()
+    
+    
+    # CALCUL DU STOCK DE CARBONE  ##################################
+    dateRemp = datetime.datetime.fromisoformat(remplacementM.date)
+    anneePeuplement = dateRemp.year - planting.date.year
+    carbones = CarboneStocke.objects.filter(monitoring_id=monitoring.code)
+    for carbone in carbones :
+        for es, rp in zip(espece,remplacer):
+                especeItem = get_object_or_404(Espece, id=int(es))
+                carbone.carboneStock = float(carbone.carboneStock) + (int(rp)*float(especeItem.co2_annuel)*int(anneePeuplement))*0.001
+                carbone.save() 
 
 
     return JsonResponse({"msg": "Remplacement effectué avec succes!","status":300},safe=False)
@@ -3304,13 +3338,19 @@ def parcTableFunction(request):
     if searchValue == "":
         
         parcelles = Parcelle.objects.filter(producteur__cooperative_id=cooperative).order_by('-created_at')[int(row):int(row)+int(rowperpage)]
+        
         for par in parcelles :
+            carbone = CarboneStocke.objects.filter(parcelle_id = par.code).aggregate(total=Sum('carboneStock'))['total']
+            if carbone :
+                carbone = round(carbone,3) / 1000
+                
             item = {
                 "code":par.code,
                 "producteur":par.producteur.nom,
                 "section":par.producteur.section.libelle,
                 "culture":par.culture,
                 "superficie":par.superficie,
+                "carbone": carbone ,
                 "longitude":par.longitude,
                 "latitude":par.latitude,
                 "action": '<a href="#" onclick="edit_parcelle(\'{0}\')" style="padding: 3px;margin-top: 6px; margin-right:5px;" class="btn btn-primary"><i class="fa fa-edit fa-fw"></i></a><a href="#" onclick="delete_semence(\'{1}\')" style="padding: 3px;margin-top: 6px;" class="btn btn-danger"><i class="fa fa-trash fa-fw"></i></a>'.format(
@@ -3330,12 +3370,17 @@ def parcTableFunction(request):
                                                                                        ).order_by('-created_at')[int(row):int(row)+int(rowperpage)]
         # parcelles = Parcelle.objects.filter(Q(producteur__cooperative_id= cooperative.id, code__istartswith=searchValue) | Q(producteur__nom__istartswith = searchValue)  | Q(culture__istartswith = searchValue) | Q(superficie__istartswith = searchValue) | Q(longitude__istartswith = searchValue)| Q(latitude__istartswith = searchValue)).order_by(columnName)[:int(rowperpage)]
         for par in parcelles :
+            carbone = CarboneStocke.objects.filter(parcelle_id = par.code).aggregate(total=Sum('carboneStock'))['total']
+            if carbone :
+                carbone = round(carbone,3)/ 1000
+                
             item = {
                 "code":par.code,
                 "producteur":par.producteur.nom,
                 "section":par.producteur.section.libelle,
                 "culture":par.culture,
                 "superficie":par.superficie,
+                "carbone": carbone ,
                 "longitude":par.longitude,
                 "latitude":par.latitude,
                 "action": '<a href="#" onclick="edit_parcelle(\'{0}\')" style="padding: 3px;margin-top: 6px; margin-right:5px;" class="btn btn-primary"><i class="fa fa-edit fa-fw"></i></a><a href="#" onclick="delete_semence(\'{1}\')" style="padding: 3px;margin-top: 6px;" class="btn btn-danger"><i class="fa fa-trash fa-fw"></i></a>'.format(

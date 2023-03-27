@@ -129,18 +129,17 @@
                             <div class="panel panel-success">
                                 <div class="panel-heading">
                                     <div class="row">
-                                        <div class="col-xs-2">
-                                            <i class="fa fa-cube fa-4x" aria-hidden="true"></i>
+                                        <div class="col-xs-3">
+                                          <!--  <i class="fa fa-list-alt fa-4x"></i>--> 
+                                          <span class="h2" ><strong>CO2<i class="glyphicon glyphicon-arrow-up" ></i></strong></span>
                                         </div>
-                                        <div class="col-xs-10 text-right">
-                                            {% if petite_production %}
-                                                <div class="huge">{{ petite_production }} (T)</div>
-                                                <div>Prod. Petite Campagne {% if annee  %} en {{annee}} {% else %}  {% endif %}</div>
+                                        <div class="col-xs-9 text-right">
+                                            {% if nbreCOstock %}
+                                               <div class="huge">{{ nbreCOstock | floatformat:3 }}</div>
                                             {% else %}
                                                 <div class="huge">0</div>
-                                                <div>Prod. Petite Campagne {% if annee  %} en {{annee}} {% else %}  {% endif %}</div>
                                             {% endif %}
-{#                                            <div>Petite Campagne</div>#}
+                                            <div>Carbone Stocké en Kg</div>
                                         </div>
                                     </div>
                                 </div>

@@ -42,6 +42,7 @@ from parametres.models import (
 )
 
 from cooperatives.models import (
+    CarboneStocke,
     Monitoring,
     MonitoringEspeceremplacement,
     Participantformation,
@@ -68,9 +69,16 @@ def client_index(request):
     AllCooperatives =""
     prod_coop = 0
     section_coop = 0
+    nbreCOstock = 0
     
 
     for cooperative in cooperatives :
+        #STOCK DE CARBONE
+        parcelles = Parcelle.objects.filter(producteur__cooperative=cooperative)
+        if CarboneStocke.objects.filter(parcelle_id__in = parcelles).aggregate(total=Sum('carboneStock'))['total'] != None :
+            nbreCOstock = nbreCOstock + CarboneStocke.objects.filter(parcelle_id__in = parcelles).aggregate(total=Sum('carboneStock'))['total'] /1000
+        
+        #END STOCK DE CARBONE
 
         if (Production.objects.filter(parcelle__producteur__cooperative_id=cooperative).aggregate(total=Sum('qteProduct'))['total']) != None:
             production = production + (Production.objects.filter(parcelle__producteur__cooperative_id=cooperative).aggregate(total=Sum('qteProduct'))['total'])
@@ -138,6 +146,7 @@ def client_index(request):
         'production': production,
         'petite_production': petite_production,
         'grande_production': grande_production,
+        "nbreCOstock":nbreCOstock,
         'annee':ANNEES
         # 'activate': activate
         # 'section_cooperative': section_cooperative,
@@ -149,7 +158,12 @@ def client_index(request):
 def detail_coop(request, id=None):
     activate = "dashboard"
     cooperative = get_object_or_404(Cooperative, id=id)
-    # coop_nb_producteurs =
+    parcelles = Parcelle.objects.filter(producteur__cooperative=cooperative)
+    nbreCOstock = 0
+    if CarboneStocke.objects.filter(parcelle_id__in = parcelles).aggregate(total=Sum('carboneStock'))['total'] != None :
+        nbreCOstock = CarboneStocke.objects.filter(parcelle_id__in = parcelles).aggregate(total=Sum('carboneStock'))['total'] / 1000
+        
+# coop_nb_producteurs =
     section = Section.objects.filter(cooperative_id=cooperative)
     sous_sections = Sous_Section.objects.filter(section__cooperative_id=cooperative)
     # section_prod = Producteur.objects.all().filter(section_id__in=section).count()
@@ -198,7 +212,8 @@ def detail_coop(request, id=None):
         'production': production,
         'petite_production': petite_production,
         'grande_production': grande_production,
-        'activate': activate
+        'activate': activate,
+        "nbreCOstock":nbreCOstock
         # 'labels': labels,
         # 'data': data,
     }
@@ -872,12 +887,18 @@ def camp_filterdashboad(request):
     Superficie = 0
     nb_producteurs = 0
     Total_plant = 0
+    nbreCOstock = 0
 
     if code == "":
         cooperatives = Cooperative.objects.filter(utilisateur = request.user.utilisateur)
 
         for cooperative in cooperatives :
-
+        #STOCK DE CARBONE
+            parcelles = Parcelle.objects.filter(producteur__cooperative=cooperative)
+            if CarboneStocke.objects.filter(parcelle_id__in = parcelles).aggregate(total=Sum('carboneStock'))['total'] != None :
+                nbreCOstock = nbreCOstock + CarboneStocke.objects.filter(parcelle_id__in = parcelles).aggregate(total=Sum('carboneStock'))['total'] / 1000
+        
+        #END STOCK DE CARBONE
             if (Production.objects.filter(parcelle__producteur__cooperative_id=cooperative).aggregate(total=Sum('qteProduct'))['total']) != None:
                 production = production + (Production.objects.filter(parcelle__producteur__cooperative_id=cooperative).aggregate(total=Sum('qteProduct'))['total'])
 
@@ -956,7 +977,8 @@ def camp_filterdashboad(request):
                 'grande_production': grande_production,
                 'annee':code,
                 'labels':labels,
-                'data':data
+                'data':data,
+                "nbreCOstock":nbreCOstock
                 # 'activate': activate
                 # 'section_cooperative': section_cooperative,
             }

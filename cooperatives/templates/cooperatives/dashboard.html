@@ -95,30 +95,24 @@
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-6">
-                        <div class="panel panel-red">
+                        <div class="panel panel-success">
                             <div class="panel-heading">
                                 <div class="row">
                                     <div class="col-xs-3">
-                                        <i class="fa fa-list-alt fa-4x"></i>
+                                      <!--  <i class="fa fa-list-alt fa-4x"></i>--> 
+                                      <span class="h2" ><strong>CO2<i class="glyphicon glyphicon-arrow-up" ></i></strong></span>
                                     </div>
                                     <div class="col-xs-9 text-right">
-                                        {% if nb_formations %}
-                                           <div class="huge">{{ nb_formations }}</div>
+                                        {% if nbreCOstock %}
+                                           <div class="huge">{{ nbreCOstock | floatformat:3 }}</div>
                                         {% else %}
                                             <div class="huge">0</div>
                                         {% endif %}
-                                        <div>Formations</div>
+                                        <div>Carbone Stocké en Tonne</div>
                                     </div>
                                 </div>
                             </div>
-                            <a href="{% url 'cooperatives:formations' %}">
-                                <div class="panel-footer">
-                                    <span class="pull-left"> Détails</span>
-                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-
-                                    <div class="clearfix"></div>
-                                </div>
-                            </a>
+                            
                         </div>
                     </div>
                 </div>
