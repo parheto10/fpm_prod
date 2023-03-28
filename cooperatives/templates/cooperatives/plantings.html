@@ -121,7 +121,7 @@
                                             <div class="col-lg-6">
                                                 <div class="form-group">
                                                     <label for="parcelle">Producteur Parcelle</label>
-                                                    <select class="form-control select2" style="width: 100%;">
+                                                    <select class="form-control select2" name="parcelle" style="width: 100%;">
                                                     {% for parc in parcelles %}
                                                         <option value="{{ parc.code }}">{{ parc.producteur.nom }}</option>
                                                     {% endfor %}

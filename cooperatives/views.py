@@ -114,7 +114,10 @@ def coop_dashboard(request):
         grande_production = (Production.objects.filter(parcelle__producteur__cooperative_id=cooperative).filter(campagne="GRANDE").aggregate(total=Sum('qteProduct'))['total']) / 1000
 
 
-    nbreCOstock = CarboneStocke.objects.filter(parcelle_id__in = parcelles).aggregate(total=Sum('carboneStock'))['total'] / 1000
+    nbreCOstock = CarboneStocke.objects.filter(parcelle_id__in = parcelles).aggregate(total=Sum('carboneStock'))['total'] 
+    
+    if nbreCOstock :
+        nbreCOstock = CarboneStocke.objects.filter(parcelle_id__in = parcelles).aggregate(total=Sum('carboneStock'))['total'] /1000
     
     #petite_production = (Production.objects.filter(parcelle__producteur__cooperative_id=cooperative).filter(campagne="PETITE").aggregate(total=Sum('qteProduct'))['total']) / 1000
     #grande_production = (Production.objects.filter(parcelle__producteur__cooperative_id=cooperative).filter(campagne="GRANDE").aggregate(total=Sum('qteProduct'))['total']) / 1000
@@ -1759,7 +1762,6 @@ def monitoringSave(request):
                
                # CALCUL DU STOCK DE CARBONE  ##################################
                pl_code = request.POST['planting']
-               
                planting = get_object_or_404(Planting, code = pl_code)
                
                ## CALCUL ANNEE DE PEUPLEMENT
@@ -3341,6 +3343,7 @@ def parcTableFunction(request):
         
         for par in parcelles :
             carbone = CarboneStocke.objects.filter(parcelle_id = par.code).aggregate(total=Sum('carboneStock'))['total']
+            print(carbone)
             if carbone :
                 carbone = round(carbone,3) / 1000
                 
@@ -3371,6 +3374,7 @@ def parcTableFunction(request):
         # parcelles = Parcelle.objects.filter(Q(producteur__cooperative_id= cooperative.id, code__istartswith=searchValue) | Q(producteur__nom__istartswith = searchValue)  | Q(culture__istartswith = searchValue) | Q(superficie__istartswith = searchValue) | Q(longitude__istartswith = searchValue)| Q(latitude__istartswith = searchValue)).order_by(columnName)[:int(rowperpage)]
         for par in parcelles :
             carbone = CarboneStocke.objects.filter(parcelle_id = par.code).aggregate(total=Sum('carboneStock'))['total']
+            print(carbone)
             if carbone :
                 carbone = round(carbone,3)/ 1000
                 
