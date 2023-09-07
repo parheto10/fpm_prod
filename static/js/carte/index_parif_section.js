@@ -172,7 +172,7 @@ function viewMapSection(id ,url){
                                     <th scope="col"><b>SUIVIS</b></th>
                                     <td class="text-uppercase text-center">
                                         <a class="btn btn-default " style="padding: 1px 8px 1px 8px;" href="#" title="voir" onclick="show_planting('http://127.0.0.1:8000/show_planting/${code}')" ><i class="glyphicon glyphicon-eye-open"></i></a>
-                                    </td>
+                                    </td> 
                                 </tr>
                             </tbody>
                           </table>

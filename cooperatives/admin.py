@@ -5,6 +5,7 @@ from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
 from .models import (
+    CarboneStocke,
     Cooperative,
     DetailMonitoring,
     MonitoringEspece,
@@ -109,6 +110,7 @@ admin.site.register(Monitoring, MonitoringAdmin)
 admin.site.register(Participantcoop)
 admin.site.register(Participantformation)
 admin.site.register(Production)
+admin.site.register(CarboneStocke)
 
 
 # admin.site.register(DetailPlanting, DetailPlantingAdmin)

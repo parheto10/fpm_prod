@@ -104,6 +104,7 @@ CAMPAGNEPROD = (
 
 TYPE_PARCELLE = (
     ("AGROFORESTERIE", "AGROFORESTERIE"),
+    ("REFORESTATION", "REFORESTATION"),
     ("COMMUNAUTAIRE", "COMMUNAUTAIRE"),
     ("FORET_CLASSEE", "FORET CLASSEE"),
     ("INDIVIDUELLE", "INDIVIDUELLE"),
@@ -172,10 +173,10 @@ class Producteur(models.Model):
     dob = models.DateField(blank=True, null=True, verbose_name="Date/Année de Naissance")
     contacts = models.CharField(max_length=50, blank=True, null=True)
     localite = models.CharField(max_length=100, blank=True, null=True)
-    nb_enfant = models.PositiveIntegerField(default=0, null=True, blank=True)
-    nb_epouse = models.PositiveIntegerField(default=0, null=True, blank=True)
-    enfant_scolarise = models.PositiveIntegerField(default=0, null=True, blank=True, verbose_name="Enfant Scolarise")
-    nb_personne = models.PositiveIntegerField(default=0, null=True, blank=True, verbose_name="Personne à Charge")
+    #nb_enfant = models.PositiveIntegerField(default=0, null=True, blank=True)
+    #nb_epouse = models.PositiveIntegerField(default=0, null=True, blank=True)
+    #enfant_scolarise = models.PositiveIntegerField(default=0, null=True, blank=True, verbose_name="Enfant Scolarise")
+    #nb_personne = models.PositiveIntegerField(default=0, null=True, blank=True, verbose_name="Personne à Charge")
     nb_parcelle = models.PositiveIntegerField(default=0)
     image = models.ImageField(verbose_name="Logo", upload_to=producteurs_images, blank=True)
     type_document = models.CharField(max_length=50, verbose_name="TYPE DOCUMENT", choices=NATURE_DOC, default="AUCUN")
@@ -596,3 +597,6 @@ class CarboneStocke(models.Model):
     parcelle = models.ForeignKey(Parcelle, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add = True)
     updated_at = models.DateTimeField(auto_now = True)
+    
+    def __str__(self):
+        return f'{self.parcelle} /{self.carboneStock}'

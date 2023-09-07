@@ -118,6 +118,8 @@ def coop_dashboard(request):
     
     if nbreCOstock :
         nbreCOstock = CarboneStocke.objects.filter(parcelle_id__in = parcelles).aggregate(total=Sum('carboneStock'))['total'] /1000
+        
+    # T/EQ
     
     #petite_production = (Production.objects.filter(parcelle__producteur__cooperative_id=cooperative).filter(campagne="PETITE").aggregate(total=Sum('qteProduct'))['total']) / 1000
     #grande_production = (Production.objects.filter(parcelle__producteur__cooperative_id=cooperative).filter(campagne="GRANDE").aggregate(total=Sum('qteProduct'))['total']) / 1000
@@ -159,6 +161,10 @@ def coop_dashboard(request):
     # 'mylabels': mylabels,
     # 'mydata': mydata,
     }
+    
+    # NOTION DE BLOCS 6 ET 3
+    # CONTOUR VOIR
+    
     return render(request,'cooperatives/dashboard.html',context=context)
 
 def coopdetailPlantings(request):
@@ -2631,10 +2637,10 @@ def createProducteurs(request):
             type_document = data['type_document'],
             num_document = data['num_document'],
             document = data['document'],
-            nb_enfant = int(data['nb_enfant']),
-            nb_epouse = int(data['nb_epouse']),
-            enfant_scolarise = int(data['enfant_scolarise']),
-            nb_personne = int(data['nb_personne']),
+            #nb_enfant = int(data['nb_enfant']),
+            #nb_epouse = int(data['nb_epouse']),
+            #enfant_scolarise = int(data['enfant_scolarise']),
+            #nb_personne = int(data['nb_personne']),
             user_id = int(data['user_id']),
         )
         serializer = ProducteurSerializer(producteur, many= False)
@@ -2655,9 +2661,9 @@ def createProducteurs(request):
         product.localite = data['localite']
         product.section_id = int(data['section_id'])
         product.nb_parcelle = int(data['nb_parcelle'])
-        product.nb_enfant = int(data['nb_enfant'])
-        product.nb_epouse = int(data['nb_epouse'])
-        product.enfant_scolarise = int(data['enfant_scolarise'])
+        #product.nb_enfant = int(data['nb_enfant'])
+        #product.nb_epouse = int(data['nb_epouse'])
+        #product.enfant_scolarise = int(data['enfant_scolarise'])
         product.user_id = int(data['user_id'])
         product.save()
 
